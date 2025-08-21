@@ -1,0 +1,111 @@
+{
+  "name": "@salespark/toolkit",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Collection of utility functions and helpers, designed to speed up development across SalesPark projects. Includes common helpers, reusable patterns, and extended functions.",
+  "license": "MIT",
+  "author": "SalesPark",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FBlade/salespark-toolkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/FBlade/salespark-toolkit/issues"
+  },
+  "homepage": "https://salespark.io",
+  "sideEffects": false,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js",
+      "require": "./dist/react/index.cjs"
+    },
+    "./web": {
+      "types": "./dist/web/index.d.ts",
+      "import": "./dist/web/index.js",
+      "require": "./dist/web/index.cjs"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "import": "./dist/node/index.js",
+      "require": "./dist/node/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --dts",
+    "clean": "rimraf dist",
+    "dev": "tsup --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm run test"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  },
+  "peerDependencies": {
+    "react": ">=17 || >=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "salespark",
+    "toolkit",
+    "utils",
+    "helpers",
+    "library",
+    "functions",
+    "shared",
+    "common",
+    "core",
+    "node",
+    "nodejs",
+    "browser",
+    "react",
+    "react-hooks",
+    "typescript",
+    "esm",
+    "cjs",
+    "functional",
+    "underscore",
+    "lodash",
+    "array",
+    "object",
+    "string",
+    "number",
+    "date",
+    "debounce",
+    "throttle",
+    "hooks",
+    "universal",
+    "cross-platform"
+  ]
+}
