@@ -7,7 +7,6 @@ Tree-shakeable, TypeScript-first, ESM + CJS outputs.
 
 [![Coverage](https://codecov.io/gh/FBlade/salespark-toolkit/branch/main/graph/badge.svg)](https://codecov.io/gh/FBlade/salespark-toolkit)
 [![npm version](https://img.shields.io/npm/v/%40salespark%2Ftoolkit.svg)](https://www.npmjs.com/package/@salespark/toolkit)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/%40salespark%2Ftoolkit)](https://bundlephobia.com/package/@salespark/toolkit)
 ![types](https://img.shields.io/npm/types/%40salespark%2Ftoolkit)
 ![modules](https://img.shields.io/badge/modules-ESM%20%2B%20CJS-1f6feb)
 ![tree-shakeable](https://img.shields.io/badge/tree--shakeable-yes-success)
