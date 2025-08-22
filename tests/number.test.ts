@@ -1,7 +1,70 @@
 import { describe, it, expect } from "vitest";
-import { clamp, round, toInteger, toNumber } from "../src/utils/number";
+import { clamp, round, toInteger, toNumber, safeParseInt, parseToNumber, randomDigits, otp } from "../src/utils/number";
 
 describe("number utils", () => {
+  describe("toInteger edge cases", () => {
+    it("should return defaultValue if toString throws", () => {
+      const badObj = { toString() { throw new Error("fail") } };
+      expect(toInteger(badObj, 99)).toBe(99);
+    });
+  });
+
+  describe("toNumber edge cases", () => {
+    it("should return 0 if toString throws", () => {
+      const badObj = { toString() { throw new Error("fail") } };
+      expect(toNumber(badObj)).toBe(0);
+    });
+  });
+
+  describe("randomDigits edge cases", () => {
+    it("should return empty string if length <= 0", () => {
+      expect(randomDigits(0)).toBe("");
+    });
+    it("should return empty string if charset is empty", () => {
+      expect(randomDigits(5, { charset: "" })).toBe("");
+    });
+    it("should return empty string if noLeadingZero and charset only has zero", () => {
+      expect(randomDigits(1, { charset: "0", noLeadingZero: true })).toBe("");
+    });
+  });
+  describe("safeParseInt (alias)", () => {
+    it("should behave like toInteger", () => {
+      expect(safeParseInt("42")).toBe(42);
+      expect(safeParseInt("not a number", 7)).toBe(7);
+      expect(safeParseInt(123)).toBe(123);
+    });
+  });
+
+  describe("parseToNumber (alias)", () => {
+    it("should behave like toNumber", () => {
+      expect(parseToNumber("3.14")).toBeCloseTo(3.14);
+      expect(parseToNumber("not a number")).toBe(0);
+      expect(parseToNumber(2.718, 2)).toBeCloseTo(2.72);
+    });
+  });
+
+  describe("randomDigits", () => {
+    it("should generate a string of digits of given length", () => {
+      const result = randomDigits(6);
+      expect(result).toMatch(/^\d{6}$/);
+      expect(typeof result).toBe("string");
+    });
+    it("should generate different values on each call", () => {
+      const a = randomDigits(6);
+      const b = randomDigits(6);
+      expect(a).not.toBe(b);
+    });
+    it("should default to 6 digits if no argument", () => {
+      expect(randomDigits()).toMatch(/^\d{6}$/);
+    });
+  });
+
+  describe("otp (alias)", () => {
+    it("should behave like randomDigits", () => {
+      expect(otp(4)).toMatch(/^\d{4}$/);
+      expect(typeof otp(4)).toBe("string");
+    });
+  });
   describe("clamp", () => {
     it("should clamp number within range", () => {
       expect(clamp(5, 1, 10)).toBe(5);

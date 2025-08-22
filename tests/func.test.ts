@@ -178,3 +178,77 @@ describe("addThousandsSpace", () => {
     expect(addThousandsSpace("not-a-number")).toBe("not-a-number");
   });
 });
+
+// Deprecated aliases tests
+import {
+  isNullOrUndefined,
+  isNullOrUndefinedTextInc,
+  isNullUndefinedOrEmpty,
+  isNullOrUndefinedInArray,
+  isNullOrUndefinedEmptyOrZero,
+  isNullUndefinedOrZero,
+  isNullOrUndefinedOrNaN,
+  humanFileSize,
+  getStringSimilarity,
+  addSpaceBetweenNumbers,
+} from "../src/utils/func";
+
+describe("Deprecated aliases", () => {
+  it("isNullOrUndefined behaves like isNil", () => {
+    expect(isNullOrUndefined(null)).toBe(true);
+    expect(isNullOrUndefined(undefined)).toBe(true);
+    expect(isNullOrUndefined(0)).toBe(false);
+  });
+
+  it("isNullOrUndefinedTextInc behaves like isNilText", () => {
+    expect(isNullOrUndefinedTextInc("null")).toBe(true);
+    expect(isNullOrUndefinedTextInc("undefined")).toBe(true);
+    expect(isNullOrUndefinedTextInc("abc")).toBe(false);
+  });
+
+  it("isNullUndefinedOrEmpty behaves like isNilOrEmpty", () => {
+    expect(isNullUndefinedOrEmpty(null)).toBe(true);
+    expect(isNullUndefinedOrEmpty("")).toBe(true);
+    expect(isNullUndefinedOrEmpty("abc")).toBe(false);
+  });
+
+  it("isNullOrUndefinedInArray behaves like hasNilOrEmpty", () => {
+    expect(isNullOrUndefinedInArray([null, 1])).toBe(true);
+    expect(isNullOrUndefinedInArray([1, 2])).toBe(false);
+    expect(isNullOrUndefinedInArray("not-an-array")).toBe(true);
+  });
+
+  it("isNullOrUndefinedEmptyOrZero behaves like isNilEmptyOrZeroLen", () => {
+    expect(isNullOrUndefinedEmptyOrZero(null)).toBe(true);
+    expect(isNullOrUndefinedEmptyOrZero("")).toBe(true);
+    expect(isNullOrUndefinedEmptyOrZero([])).toBe(true);
+    expect(isNullOrUndefinedEmptyOrZero([1])).toBe(false);
+  });
+
+  it("isNullUndefinedOrZero behaves like isNilOrZeroLen", () => {
+    expect(isNullUndefinedOrZero(null)).toBe(true);
+    expect(isNullUndefinedOrZero([])).toBe(true);
+    expect(isNullUndefinedOrZero([1])).toBe(false);
+  });
+
+  it("isNullOrUndefinedOrNaN behaves like isNilOrNaN", () => {
+    expect(isNullOrUndefinedOrNaN(null)).toBe(true);
+    expect(isNullOrUndefinedOrNaN(NaN)).toBe(true);
+    expect(isNullOrUndefinedOrNaN(123)).toBe(false);
+  });
+
+  it("humanFileSize behaves like formatBytes", () => {
+    expect(humanFileSize(1024)).toBe("1.0 KiB");
+    expect(humanFileSize(1000, true)).toBe("1.0 kB");
+  });
+
+  it("getStringSimilarity behaves like stringSimilarity", () => {
+    expect(getStringSimilarity("abc", "abc")).toBe(1);
+    expect(getStringSimilarity("abc", "xyz")).toBe(0);
+  });
+
+  it("addSpaceBetweenNumbers behaves like addThousandsSpace", () => {
+    expect(addSpaceBetweenNumbers(1234567)).toBe("1 234 567");
+    expect(addSpaceBetweenNumbers("1234567.89")).toBe("1 234 567.89");
+  });
+});

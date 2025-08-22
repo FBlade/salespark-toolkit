@@ -12,7 +12,12 @@ import {
   intersection,
   compact,
   pluck,
-  shuffle
+  shuffle,
+  isFlattenable,
+  pushAll,
+  flattenDepthBase,
+  flattenOnce,
+  flattenDepth
 } from '../src/utils/array';
 
 describe('array utils', () => {
@@ -157,4 +162,60 @@ describe('array utils', () => {
       expect(changed).toBe(true); // At least one shuffle should change order
     });
   });
+  
+    describe('isFlattenable', () => {
+      it('returns true for arrays', () => {
+        expect(isFlattenable([1, 2, 3])).toBe(true);
+      });
+      it('returns false for non-arrays', () => {
+        expect(isFlattenable(123)).toBe(false);
+        expect(isFlattenable('abc')).toBe(false);
+        expect(isFlattenable({})).toBe(false);
+      });
+    });
+
+    describe('pushAll', () => {
+      it('pushes all elements from source to target', () => {
+        const target = [1, 2];
+        pushAll(target, [3, 4]);
+        expect(target).toEqual([1, 2, 3, 4]);
+      });
+      it('does nothing if source is empty', () => {
+        const target = [1];
+        pushAll(target, []);
+        expect(target).toEqual([1]);
+      });
+    });
+
+    describe('flattenDepthBase', () => {
+      it('flattens array to specified depth', () => {
+        expect(flattenDepthBase([1, [2, [3, [4]]]], 1)).toEqual([1, 2, [3, [4]]]);
+        expect(flattenDepthBase([1, [2, [3, [4]]]], 2)).toEqual([1, 2, 3, [4]]);
+        expect(flattenDepthBase([1, [2, [3, [4]]]], 3)).toEqual([1, 2, 3, 4]);
+      });
+      it('returns original array if depth is 0', () => {
+        expect(flattenDepthBase([1, [2]], 0)).toEqual([1, [2]]);
+      });
+    });
+
+    describe('flattenOnce', () => {
+      it('flattens one level of nesting', () => {
+        expect(flattenOnce([1, [2, 3], 4])).toEqual([1, 2, 3, 4]);
+        expect(flattenOnce([[1], [2], [3]])).toEqual([1, 2, 3]);
+      });
+      it('returns original array if no nesting', () => {
+        expect(flattenOnce([1, 2, 3])).toEqual([1, 2, 3]);
+      });
+    });
+
+    describe('flattenDepth', () => {
+      it('flattens array to specified depth', () => {
+        expect(flattenDepth([1, [2, [3, [4]]]], 1)).toEqual([1, 2, [3, [4]]]);
+        expect(flattenDepth([1, [2, [3, [4]]]], 2)).toEqual([1, 2, 3, [4]]);
+        expect(flattenDepth([1, [2, [3, [4]]]], 3)).toEqual([1, 2, 3, 4]);
+      });
+      it('returns original array if depth is 0', () => {
+        expect(flattenDepth([1, [2]], 0)).toEqual([1, [2]]);
+      });
+    });
 });

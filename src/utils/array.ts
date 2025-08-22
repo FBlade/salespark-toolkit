@@ -215,3 +215,145 @@ export function shuffle<T>(arr: T[]): T[] {
   }
   return a;
 }
+
+/**
+ ****************************************************
+ * ##: Flattenable Value Checker
+ * Checks if a value can be flattened (array, arguments, or marked spreadable)
+ *
+ * Notes:
+ * Mirrors lodash's behavior: checks Array.isArray, arguments object, and Symbol.isConcatSpreadable.
+ * @param {unknown} value - Value to check for flattenability
+ * History:
+ * 21-08-2025: Created
+ ****************************************************/
+export function isFlattenable(value: unknown): value is readonly unknown[] {
+  // Quick path: arrays
+  if (Array.isArray(value)) return true;
+
+  // Check for arguments object
+  const isArgs = Object.prototype.toString.call(value) === "[object Arguments]";
+
+  if (isArgs) return true;
+
+  // Respect Symbol.isConcatSpreadable when present
+  // (some iterables/array-likes may opt-in)
+  const spreadable = (Symbol as any).isConcatSpreadable as symbol | undefined;
+  // Using bracket access to avoid TS downlevel issues
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return spreadable ? !!(value as any)?.[spreadable] : false;
+}
+
+/**
+ ****************************************************
+ * ##: Array Push All
+ * Appends all values into array in-place (similar to lodash arrayPush)
+ * @param {Array<T>} array - Target array
+ * @param {Array<T>} values - Values to append
+ * History:
+ * 21-08-2025: Created
+ ****************************************************/
+export function pushAll<T>(array: T[], values: readonly T[]): T[] {
+  let index = -1;
+  const length = values.length;
+  const offset = array.length;
+
+  while (++index < length) {
+    array[offset + index] = values[index] as T;
+  }
+  return array;
+}
+
+/**
+ ****************************************************
+ * ##: Base Array Flatten
+ * Base flatten routine with configurable depth and predicate
+ *
+ * Notes:
+ * Allows control of depth, predicate, and strict mode. Used internally for flattening.
+ * @param {Array} array - Input array
+ * @param {Number} depth - Maximum recursion depth
+ * @param {Function} predicate - Function to determine if value is flattenable
+ * @param {Boolean} isStrict - If true, only flattenable values are kept
+ * @param {Array} result - Optional accumulator (internal)
+ * @returns {Array} New flattened array
+ * History:
+ * 21-08-2025: Created
+ ****************************************************/
+export function flattenDepthBase<T>(
+  array: readonly unknown[],
+  depth: number,
+  predicate: (v: unknown) => boolean = isFlattenable,
+  isStrict = false,
+  result: T[] = []
+): T[] {
+  let index = -1;
+  const length = array.length;
+
+  while (++index < length) {
+    const value = array[index];
+    if (depth > 0 && predicate(value)) {
+      if (depth > 1) {
+        // Recursively flatten (susceptible to call stack limits on huge nests).
+        flattenDepthBase<T>(
+          value as readonly unknown[],
+          depth - 1,
+          predicate,
+          isStrict,
+          result
+        );
+      } else {
+        pushAll(result, value as T[]);
+      }
+    } else if (!isStrict) {
+      // Keep non-flattenables when not strict
+      (result as unknown[])[result.length] = value as unknown as T;
+    }
+  }
+  return result;
+}
+
+/**
+ ****************************************************
+ * ##: Flatten Array Once
+ * Flattens array a single level deep (equivalent to lodash _.flatten)
+ *
+ * Notes:
+ * Example: flattenOnce([1, [2, [3, [4]], 5]]) => [1, 2, [3, [4]], 5]
+ * @param {Array} array - Array to flatten
+ * @returns {Array} Flattened array (1 level)
+ * History:
+ * 21-08-2025: Created
+ ****************************************************/
+export function flattenOnce<T>(
+  array: ReadonlyArray<T | ReadonlyArray<T>>
+): T[] {
+  // Type note: `flattenDepthBase` returns `unknown[]` at compile-time,
+  // but we constrain inputs so a cast to `T[]` is safe here.
+  return flattenDepthBase<T>(array as readonly unknown[], 1) as T[];
+}
+
+/******************************************************
+ * ##: Flatten Array to Depth
+ * Flattens array up to the specified depth (friendly wrapper, default 1)
+ *
+ * Notes:
+ * Example: flattenDepth([1, [2, [3, [4]], 5]], 2) => [1, 2, 3, [4], 5]
+ * @param {Array} array - Array to flatten
+ * @param {Number} depth - Maximum depth
+ * @param {Object} options - Options: predicate, isStrict
+ * @returns {Array} Flattened array up to depth
+ * History:
+ * 21-08-2025: Created
+ ****************************************************/
+export function flattenDepth<T = unknown>(
+  array: readonly unknown[],
+  depth = 1,
+  options?: {
+    predicate?: (v: unknown) => boolean;
+    isStrict?: boolean;
+  }
+): T[] {
+  const { predicate = isFlattenable, isStrict = false } = options ?? {};
+  return flattenDepthBase<T>(array, depth, predicate, isStrict);
+}
