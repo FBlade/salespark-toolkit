@@ -9,8 +9,9 @@ jobs:
         with:
           node-version: "20"
       - run: yarn install
-      - run: yarn test
+      - run: yarn test --coverage --coverage.reporter=lcov
+      - run: ls -l coverage
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          files: ./coverage/coverage-final.json
+          files: ./coverage/lcov.info
