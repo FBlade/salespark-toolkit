@@ -14,7 +14,7 @@ Tree-shakeable, TypeScript-first, ESM + CJS outputs.
 
 ---
 
-## 📦 Install
+## 📦 Installation
 
 ```bash
 yarn add @salespark/toolkit
@@ -531,6 +531,22 @@ All functions are fully typed for best developer experience.
 
 ---
 
+## 🛠️ Support
+
+Got stuck? Don’t panic — we’ve got you covered.
+
+### 🤖 AI Assistant
+
+We built a custom **AI Assistant** trained _only_ on `@salespark/toolkit`.  
+It answers implementation and troubleshooting questions in real time:
+
+👉 Ask the Toolkit GPT:  
+https://chatgpt.com/g/g-68a9bf25537081918c3b76ae8f353e70-salespark-toolkit-v2
+
+_(Free to use with a ChatGPT account)_
+
+---
+
 ### 🔒 Internal Usage Notice
 
 This package is primarily designed and maintained for internal use within the SalesPark ecosystem.
@@ -552,5 +568,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 2_  
-_Last update: 22-08-2025_
+_Document version: 3_  
+_Last update: 23-08-2025_
