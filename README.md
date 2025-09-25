@@ -24,17 +24,15 @@ npm i @salespark/toolkit
 
 ## ✨ Features
 
-- **Array utilities**: chunk, uniqBy, deep equality, flatten, etc.
-- **Object utilities**: pick, omit, clean objects, etc.
+- **Array utilities**: chunk, uniqBy, deep equality, flatten, groupBy, etc.
+- **Object utilities**: pick, omit, clean objects, deep merge, etc.
 - **String utilities**: slugify, template fill, deburr, sanitize, etc.
 - **Number utilities**: clamp, round, safe parse, random digits, etc.
-- **Function utilities**: formatCurrency, parseName, currency conversions, etc.
-- **Validations**: IBAN validator, Portuguese tax ID validator, etc.
-- **Security utilities**: Markdown XSS protection, content sanitization, risk assessment, etc.
-- **Boolean utilities**: safe boolean conversion with common representations.
-- **Function utilities**: debounce, throttle, nil/empty checks, formatBytes, formatCurrency, parseName, symbolToCurrency, currencyToSymbol, string similarity, etc.
-- **Validation utilities**: IBAN validation (ISO 13616), Portuguese Tax ID validation.
-- **Environment detection**: `isBrowser`, `isNode`.
+- **Function utilities**: debounce, throttle, formatCurrency, parseName, currency conversions, etc.
+- **Boolean utilities**: safe boolean conversion with common representations
+- **Validation utilities**: IBAN validator (ISO 13616), Portuguese tax ID validator
+- **Security utilities**: Markdown XSS protection, content sanitization, risk assessment
+- **Environment detection**: `isBrowser`, `isNode` runtime checks
 
 ---
 
@@ -650,6 +648,35 @@ assessSecurityRisks([]);
 // Result: { score: 0, level: "safe", recommendations: ["Content appears safe to use"] }
 ```
 
+### ✅ Validation Utilities
+
+**`isPTTaxId(value: string | number): boolean`** — Validates Portuguese Tax ID (NIF) with MOD-11 algorithm and format checking.
+
+```typescript
+import { isPTTaxId } from "@salespark/toolkit";
+
+isPTTaxId("123456789");        // false (invalid check digit)
+isPTTaxId("123 456 789");      // false (spaces stripped automatically)
+isPTTaxId("513183504");        // true (valid NIF)
+isPTTaxId("423456789");        // false (invalid prefix - 4 not allowed)
+
+// Deprecated alias (use isPTTaxId instead)
+// isValidPTTaxId("513183504");   // true
+```
+
+**`isValidIBAN(value: string): boolean`** — Validates International Bank Account Numbers (IBAN) according to ISO 13616 standard with country-specific rules.
+
+```typescript
+import { isValidIBAN } from "@salespark/toolkit";
+
+isValidIBAN("NL91ABNA0417164300");     // true (valid Dutch IBAN)
+isValidIBAN("NL91 ABNA 0417 1643 00"); // true (spaces stripped automatically)
+isValidIBAN("GB29NWBK60161331926819"); // true (valid UK IBAN)
+isValidIBAN("DE89370400440532013000");  // true (valid German IBAN)
+isValidIBAN("NL91ABNA0417164301");     // false (invalid checksum)
+isValidIBAN("XX1234567890");           // false (invalid country code)
+```
+
 ### 🌐 Environment Detection
 
 **`isBrowser: boolean`** — True if running in browser.
@@ -681,31 +708,9 @@ The following functions are deprecated but maintained for backward compatibility
 - `parseToBool` — Use `toBool` instead.
 
 ### ⚡ Function Utilities (Deprecated)
-### ✅ Validation Utilities
-
-**`isPTTaxId(value: string | number): boolean`** — Validates a Portuguese Tax ID (NIF). Rules: 9 digits, Mod11 check digit with weights 9..2, allowed leading digits (1,2,3,5,6,8,9), strips separators, rejects repeated-digit sequences.
-
-```ts
-isPTTaxId("123456789");        // false (check digit likely invalid)
-isPTTaxId("123 456 789");      // false (whitespace stripped before validation)
-isPTTaxId("423456789");        // false (prefix 4 not allowed)
-```
-
-> Deprecated alias: `isValidPTTaxId` (will be removed in a future release)
-
-**`isValidIBAN(value: string): boolean`** — Validates International Bank Account Numbers (IBAN) according to ISO 13616. Rules: Country-specific format and length, MOD-97 checksum validation, BBAN format validation, supports all IBAN registry countries, strips formatting automatically.
-
-```ts
-isValidIBAN("NL91ABNA0417164300");     // true (valid Dutch IBAN)
-isValidIBAN("NL91 ABNA 0417 1643 00"); // true (spaces stripped)
-isValidIBAN("GB29NWBK60161331926819"); // true (valid UK IBAN)
-isValidIBAN("DE89370400440532013000");  // true (valid German IBAN)
-isValidIBAN("NL91ABNA0417164301");     // false (invalid checksum)
-```
-
 
 - `isNullOrUndefined` — Use `isNil` instead.
-- `isNullOrUndefinedTextInc` — Use `isNilText` instead.
+- `isNullOrUndefinedTextInc` — Use `isNilText` instead.  
 - `isNullUndefinedOrEmpty` — Use `isNilOrEmpty` instead.
 - `isNullOrUndefinedInArray` — Use `hasNilOrEmpty` instead.
 - `isNullOrUndefinedEmptyOrZero` — Use `isNilEmptyOrZeroLen` instead.
@@ -714,6 +719,12 @@ isValidIBAN("NL91ABNA0417164301");     // false (invalid checksum)
 - `humanFileSize` — Use `formatBytes` instead.
 - `getStringSimilarity` — Use `stringSimilarity` instead.
 - `addSpaceBetweenNumbers` — Use `addThousandsSpace` instead.
+
+### ✅ Validation Utilities (Deprecated)
+
+> These functions are now in the main API but their legacy aliases are deprecated:
+
+- `isValidPTTaxId` — Use `isPTTaxId` instead.
 
 ### 🔢 Number Utilities (Deprecated)
 
@@ -768,5 +779,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 4_  
+_Document version: 5_  
 _Last update: 25-09-2025_
