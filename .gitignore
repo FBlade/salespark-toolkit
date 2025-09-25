@@ -3,12 +3,6 @@ dist
 *.log
 *.tsbuildinfo
 coverage
-src/
-tests/
-__tests__/
-*.test.*
-tsconfig*.json
-tsup.config.*
 .vscode/
 .env*
 .DS_Store
