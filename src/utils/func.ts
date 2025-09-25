@@ -77,6 +77,7 @@ export const isNilText = (value: unknown): boolean => {
 export const isNilOrEmpty = (value: unknown): boolean => {
   try {
     return isNil(value) || value === "";
+  /* c8 ignore next -- defensive fallback (should never throw) */
   } catch {
     return true;
   }
@@ -358,6 +359,414 @@ export const addThousandsSpace = (value: number | string): string => {
     return value as string;
   }
 };
+
+/******************************************************
+ * ##: Delay Function
+ * Creates a promise that resolves after the specified number of milliseconds
+ * @param {Number} ms - Delay in milliseconds (negative values are treated as 0)
+ * @returns {Promise<void>} Promise that resolves after the delay
+ * History:
+ * 25-09-2025: Created
+ ****************************************************/
+export const delay = (ms: number): Promise<void> => 
+  new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)));
+
+/******************************************************
+ * ##: Enforced Nil/Empty/Textual Null Check
+ * Checks if value is null/undefined/empty string or the text values "null" / "undefined" (case-insensitive)
+ * @param {unknown} value - Value to check
+ * @returns {Boolean} true if value is considered empty-like
+ * History:
+ * 25-09-2025: Created
+ ****************************************************/
+export const isNilTextOrEmpty = (value: unknown): boolean => {
+  try {
+    if (value === null || value === undefined || value === "") return true;
+    if (typeof value === "string") {
+      const v = value.trim().toLowerCase();
+      return v === "null" || v === "undefined";
+    }
+    return false;
+  /* c8 ignore next -- defensive fallback (should never throw) */
+  } catch {
+    return true; // safest fallback
+  }
+};
+
+/******************************************************
+ * ##: Modern Currency Formatter (Intl.NumberFormat)
+ * Formats currency values using modern Intl.NumberFormat API with configurable locale and currency.
+ *
+ * Provides flexible currency formatting with optional symbol display,
+ * proper decimal handling, and graceful fallback for errors.
+ * @param {number|string|null|undefined} value Currency value to format
+ * @param {boolean} withoutCurrencySymbol Hide currency symbol (show as decimal)
+ * @param {string} currency Currency code (ISO 4217, e.g., "EUR", "USD")
+ * @param {string} locale Locale string (e.g., "pt-PT", "en-US")
+ * @returns {string} Formatted currency string (e.g., "1.234,56 €" or "1.234,56")
+ * History:
+ * 25-09-2025: Created
+ ****************************************************/
+export const formatCurrency = (
+  value: number | string | null | undefined,
+  withoutCurrencySymbol: boolean = false,
+  currency: string = "EUR",
+  locale: string = "pt-PT"
+): string => {
+  try {
+    // Normalize input value
+    const numValue = value === undefined || value === null || value === "" ? 0 : Number(value);
+    
+    if (isNaN(numValue) || !isFinite(numValue)) {
+      return withoutCurrencySymbol ? "0,00" : "0,00 €";
+    }
+
+    const intlOptions: Intl.NumberFormatOptions = {
+      style: withoutCurrencySymbol ? "decimal" : "currency",
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    };
+
+    return new Intl.NumberFormat(locale, intlOptions).format(numValue);
+  } catch (error) {
+    /* c8 ignore start */
+    // Fallback to simple formatting if Intl fails
+    const numValue = Number(value) || 0;
+    const formatted = numValue.toFixed(2).replace(".", ",");
+    return withoutCurrencySymbol ? formatted : `${formatted} €`;
+    /* c8 ignore end */
+  }
+};
+
+/******************************************************
+ * ##: Parse Name into First and Last Components
+ * Extracts first and last name from a full name string.
+ *
+ * Handles edge cases like single names, empty inputs, and multi-word names.
+ * Returns first word as firstName and last word as lastName.
+ * @param {string|null|undefined} name Full name string to parse
+ * @returns {{firstName: string, lastName: string}} Object with firstName and lastName properties
+ * History:
+ * 25-09-2025: Created
+ ****************************************************/
+export const parseName = (
+  name: string | null | undefined
+): { firstName: string; lastName: string } => {
+  try {
+    // Handle nil or empty inputs
+    if (name === undefined || name === null || name === "") {
+      return { firstName: "", lastName: "" };
+    }
+
+    // Trim whitespace and normalize spacing
+    const cleanName = name.toString().trim().replace(/\s+/g, " ");
+    
+    if (cleanName === "") {
+      return { firstName: "", lastName: "" };
+    }
+
+    // Single name case
+    if (!cleanName.includes(" ")) {
+      return { firstName: cleanName, lastName: "" };
+    }
+
+    // Multiple names case - get first and last
+    const nameParts = cleanName.split(" ");
+    const firstName = nameParts[0];
+    const lastName = nameParts[nameParts.length - 1];
+    
+    return { firstName, lastName };
+  } catch (error) {
+    /* c8 ignore start */
+    // Defensive fallback: try to use original input as firstName
+    const fallbackName = name ? String(name).trim() : "";
+    return { firstName: fallbackName, lastName: "" };
+    /* c8 ignore end */
+  }
+};
+
+/******************************************************
+ * ##: Currency Symbol to ISO Code Converter
+ * Converts currency symbols (€, £, $) to ISO 4217 currency codes.
+ *
+ * Maps common currency symbols to their corresponding three-letter codes.
+ * Returns "EUR" as fallback for unknown symbols.
+ * @param {string|null|undefined} symbol Currency symbol to convert (e.g., "€", "£", "$")
+ * @returns {string} ISO 4217 currency code (e.g., "EUR", "GBP", "USD")
+ * History:
+ * 25-09-2025: Created
+ ****************************************************/
+export const symbolToCurrency = (
+  symbol: string | null | undefined
+): string => {
+  try {
+    if (!symbol || typeof symbol !== "string") {
+      return "EUR";
+    }
+
+    const normalizedSymbol = symbol.trim();
+    
+    switch (normalizedSymbol) {
+      case "€":
+        return "EUR";
+      case "£":
+        return "GBP";
+      case "$":
+        return "USD";
+      case "¥":
+      case "￥":
+        return "JPY";
+      case "₹":
+        return "INR";
+      case "₽":
+        return "RUB";
+      case "¢":
+        return "USD"; // US cents
+      case "₩":
+        return "KRW"; // South Korean Won
+      case "₪":
+        return "ILS"; // Israeli Shekel
+      case "₦":
+        return "NGN"; // Nigerian Naira
+      case "₨":
+        return "PKR"; // Pakistani Rupee
+      case "₱":
+        return "PHP"; // Philippine Peso
+      case "₫":
+        return "VND"; // Vietnamese Dong
+      case "₡":
+        return "CRC"; // Costa Rican Colon
+      case "₲":
+        return "PYG"; // Paraguayan Guarani
+      case "₴":
+        return "UAH"; // Ukrainian Hryvnia
+      case "₵":
+        return "GHS"; // Ghanaian Cedi
+      case "₶":
+        return "EUR"; // Livre tournois (historical, fallback to EUR)
+      case "₸":
+        return "KZT"; // Kazakhstani Tenge
+      case "₺":
+        return "TRY"; // Turkish Lira
+      case "₻":
+        return "EUR"; // Nordic mark (historical, fallback to EUR)
+      case "₼":
+        return "AZN"; // Azerbaijani Manat
+      case "₾":
+        return "GEL"; // Georgian Lari
+      case "₿":
+        return "BTC"; // Bitcoin
+      case "﷼":
+        return "SAR"; // Saudi Riyal
+      case "＄":
+        return "USD"; // Full-width dollar sign
+      case "￠":
+        return "USD"; // Full-width cent sign
+      case "￡":
+        return "GBP"; // Full-width pound sign
+      case "￢":
+        return "GBP"; // Full-width not sign (sometimes used for pound)
+      case "￣":
+        return "JPY"; // Full-width macron (sometimes used for yen)
+      case "￤":
+        return "EUR"; // Full-width lira sign
+      case "￦":
+        return "KRW"; // Full-width won sign
+      // Additional common symbols
+      case "R":
+        return "ZAR"; // South African Rand (when used as symbol)
+      case "R$":
+        return "BRL"; // Brazilian Real
+      case "C$":
+        return "CAD"; // Canadian Dollar
+      case "A$":
+        return "AUD"; // Australian Dollar
+      case "S$":
+        return "SGD"; // Singapore Dollar
+      case "HK$":
+        return "HKD"; // Hong Kong Dollar
+      case "NZ$":
+        return "NZD"; // New Zealand Dollar
+      case "kr":
+      case "Kr":
+        return "SEK"; // Swedish Krona (fallback, could be NOK or DKK)
+      case "zł":
+        return "PLN"; // Polish Zloty
+      case "Kč":
+        return "CZK"; // Czech Koruna
+      case "Ft":
+        return "HUF"; // Hungarian Forint
+      case "lei":
+        return "RON"; // Romanian Leu
+      case "лв":
+        return "BGN"; // Bulgarian Lev
+      case "kn":
+        return "HRK"; // Croatian Kuna
+      case "din":
+        return "RSD"; // Serbian Dinar
+      case "ден":
+        return "MKD"; // Macedonian Denar
+      default:
+        return "EUR"; // fallback
+    }
+  } catch (error) {
+    /* c8 ignore start */
+    return "EUR"; // safe fallback
+    /* c8 ignore end */
+  }
+};
+
+/******************************************************
+ * ##: ISO Currency Code to Symbol Converter
+ * Converts ISO 4217 currency codes to their corresponding symbols.
+ *
+ * Maps three-letter currency codes to common currency symbols.
+ * Returns "€" as fallback for unknown currencies.
+ * @param {string|null|undefined} currency ISO 4217 currency code (e.g., "EUR", "GBP", "USD")
+ * @returns {string} Currency symbol (e.g., "€", "£", "$")
+ * History:
+ * 25-09-2025: Created
+ ****************************************************/
+export const currencyToSymbol = (
+  currency: string | null | undefined
+): string => {
+  try {
+    if (!currency || typeof currency !== "string") {
+      return "€";
+    }
+
+    const normalizedCurrency = currency.trim().toUpperCase();
+    
+    switch (normalizedCurrency) {
+      case "EUR":
+        return "€";
+      case "GBP":
+        return "£";
+      case "USD":
+        return "$";
+      case "JPY":
+        return "¥";
+      case "INR":
+        return "₹";
+      case "RUB":
+        return "₽";
+      case "CNY":
+        return "¥";
+      case "KRW":
+        return "₩"; // South Korean Won
+      case "ILS":
+        return "₪"; // Israeli Shekel
+      case "NGN":
+        return "₦"; // Nigerian Naira
+      case "PKR":
+        return "₨"; // Pakistani Rupee
+      case "PHP":
+        return "₱"; // Philippine Peso
+      case "VND":
+        return "₫"; // Vietnamese Dong
+      case "CRC":
+        return "₡"; // Costa Rican Colon
+      case "PYG":
+        return "₲"; // Paraguayan Guarani
+      case "UAH":
+        return "₴"; // Ukrainian Hryvnia
+      case "GHS":
+        return "₵"; // Ghanaian Cedi
+      case "KZT":
+        return "₸"; // Kazakhstani Tenge
+      case "TRY":
+        return "₺"; // Turkish Lira
+      case "AZN":
+        return "₼"; // Azerbaijani Manat
+      case "GEL":
+        return "₾"; // Georgian Lari
+      case "BTC":
+        return "₿"; // Bitcoin
+      case "SAR":
+        return "﷼"; // Saudi Riyal
+      case "ZAR":
+        return "R"; // South African Rand
+      case "BRL":
+        return "R$"; // Brazilian Real
+      case "CAD":
+        return "C$"; // Canadian Dollar
+      case "AUD":
+        return "A$"; // Australian Dollar
+      case "SGD":
+        return "S$"; // Singapore Dollar
+      case "HKD":
+        return "HK$"; // Hong Kong Dollar
+      case "NZD":
+        return "NZ$"; // New Zealand Dollar
+      case "SEK":
+        return "kr"; // Swedish Krona
+      case "NOK":
+        return "kr"; // Norwegian Krone
+      case "DKK":
+        return "kr"; // Danish Krone
+      case "PLN":
+        return "zł"; // Polish Zloty
+      case "CZK":
+        return "Kč"; // Czech Koruna
+      case "HUF":
+        return "Ft"; // Hungarian Forint
+      case "RON":
+        return "lei"; // Romanian Leu
+      case "BGN":
+        return "лв"; // Bulgarian Lev
+      case "HRK":
+        return "kn"; // Croatian Kuna
+      case "RSD":
+        return "din"; // Serbian Dinar
+      case "MKD":
+        return "ден"; // Macedonian Denar
+      case "CHF":
+        return "CHF"; // Swiss Franc (commonly written as CHF)
+      case "THB":
+        return "฿"; // Thai Baht
+      case "MYR":
+        return "RM"; // Malaysian Ringgit
+      case "IDR":
+        return "Rp"; // Indonesian Rupiah
+      case "CLP":
+        return "$"; // Chilean Peso (uses $ symbol)
+      case "COP":
+        return "$"; // Colombian Peso (uses $ symbol)
+      case "MXN":
+        return "$"; // Mexican Peso (uses $ symbol)
+      case "ARS":
+        return "$"; // Argentine Peso (uses $ symbol)
+      case "UYU":
+        return "$"; // Uruguayan Peso (uses $ symbol)
+      case "PEN":
+        return "S/"; // Peruvian Sol
+      case "BOB":
+        return "Bs"; // Bolivian Boliviano
+      case "EGP":
+        return "£"; // Egyptian Pound (uses £ symbol)
+      case "LBP":
+        return "£"; // Lebanese Pound (uses £ symbol)
+      case "SYP":
+        return "£"; // Syrian Pound (uses £ symbol)
+      default:
+        return "€"; // fallback
+    }
+  } catch (error) {
+    /* c8 ignore start */
+    return "€"; // safe fallback
+    /* c8 ignore end */
+  }
+};
+
+/* ======================================================================================
+ * Deprecated aliases (backward-compatibility) - new function alias (if needed later)
+ * ====================================================================================*/
+// Deprecated alias for previous provisional name
+/**
+ * @deprecated Use `isNilTextOrEmpty` instead.
+ */
+export const isNullUndefinedOrEmptyEnforced = isNilTextOrEmpty;
 
 /* ======================================================================================
  * Deprecated aliases (backward-compatibility)

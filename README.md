@@ -28,8 +28,12 @@ npm i @salespark/toolkit
 - **Object utilities**: pick, omit, clean objects, etc.
 - **String utilities**: slugify, template fill, deburr, sanitize, etc.
 - **Number utilities**: clamp, round, safe parse, random digits, etc.
+- **Function utilities**: formatCurrency, parseName, currency conversions, etc.
+- **Validations**: IBAN validator, Portuguese tax ID validator, etc.
+- **Security utilities**: Markdown XSS protection, content sanitization, risk assessment, etc.
 - **Boolean utilities**: safe boolean conversion with common representations.
-- **Function utilities**: debounce, throttle, nil/empty checks, formatBytes, string similarity, etc.
+- **Function utilities**: debounce, throttle, nil/empty checks, formatBytes, formatCurrency, parseName, symbolToCurrency, currencyToSymbol, string similarity, etc.
+- **Validation utilities**: IBAN validation (ISO 13616), Portuguese Tax ID validation.
 - **Environment detection**: `isBrowser`, `isNode`.
 
 ---
@@ -43,6 +47,7 @@ Get started in seconds with a few common utilities:
 ```typescript
 import {
   debounce,
+  delay,
   chunk,
   slugify,
   clamp,
@@ -54,6 +59,9 @@ import {
 const debouncedFn = debounce(() => {
   /* ... */
 }, 200);
+
+// Delay execution
+await delay(1000); // Wait 1 second
 
 // Chunk an array
 const chunks = chunk([1, 2, 3, 4, 5], 2); // [[1,2],[3,4],[5]]
@@ -375,7 +383,28 @@ const throttledFn = throttle(() => console.log("Called!"), 1000);
 throttledFn(); // Will execute at most once per 1000ms
 ```
 
+**`delay(ms: number): Promise<void>`** — Creates a promise that resolves after specified milliseconds.
+
+```javascript
+await delay(1000); // Wait 1 second
+await delay(500); // Wait 500ms
+```
+
 **`isNil(value: unknown): boolean`** — Checks if a value is null or undefined.
+
+**`isNilTextOrEmpty(value: unknown): boolean`** — Strict check for `null`, `undefined`, empty string `""`, or textual values `"null"` / `"undefined"` (case-insensitive, trims spaces). Returns `true` in those cases, otherwise `false`.
+
+```javascript
+isNilTextOrEmpty(null); // true
+isNilTextOrEmpty("undefined"); // true
+isNilTextOrEmpty(" UNDEFINED "); // true
+isNilTextOrEmpty("null"); // true
+isNilTextOrEmpty(""); // true
+isNilTextOrEmpty("abc"); // false
+isNilTextOrEmpty(0); // false
+```
+
+> Deprecated: `isNullUndefinedOrEmptyEnforced` (use `isNilTextOrEmpty`).
 
 ```javascript
 isNil(null);
@@ -472,6 +501,155 @@ addThousandsSpace(1234567);
 // Result: "1 234 567"
 ```
 
+**`formatCurrency(value: number | string | null | undefined, withoutCurrencySymbol?: boolean, currency?: string, locale?: string): string`** — Formats currency values with configurable currency and locale. Uses modern Intl.NumberFormat with automatic thousands separators, proper decimal handling, and graceful fallback for errors.
+
+```javascript
+// Default: EUR currency with Portuguese locale
+formatCurrency(1234.56);
+// Result: "1234,56 €"
+
+formatCurrency(1000000.123);
+// Result: "1 000 000,12 €"
+
+formatCurrency(999.9, true);
+// Result: "999,90" (without symbol)
+
+// Different currencies
+formatCurrency(1234.56, false, "USD", "en-US");
+// Result: "$1,234.56"
+
+formatCurrency(1234.56, false, "GBP", "en-GB");
+// Result: "£1,234.56"
+
+formatCurrency(1234.56, false, "USD", "pt-PT");
+// Result: "1234,56 US$"
+
+formatCurrency(null);
+// Result: "0,00 €"
+```
+
+**`parseName(name: string | null | undefined): {firstName: string, lastName: string}`** — Extracts first and last name from a full name string. Handles single names, empty inputs, and multi-word names intelligently.
+
+```javascript
+parseName("João Silva");
+// Result: { firstName: "João", lastName: "Silva" }
+
+parseName("Maria José Santos Costa");
+// Result: { firstName: "Maria", lastName: "Costa" }
+
+parseName("Ana");
+// Result: { firstName: "Ana", lastName: "" }
+
+parseName("  José   María   García  ");
+// Result: { firstName: "José", lastName: "García" }
+
+parseName(null);
+// Result: { firstName: "", lastName: "" }
+```
+
+**`symbolToCurrency(symbol: string | null | undefined): string`** — Converts currency symbols to ISO 4217 currency codes. Supports 50+ currency symbols including €, £, $, ¥, ₹, ₽, ₩, ₪, and many others.
+
+```javascript
+symbolToCurrency("€");
+// Result: "EUR"
+
+symbolToCurrency("$");
+// Result: "USD"
+
+symbolToCurrency("₩");
+// Result: "KRW"
+
+symbolToCurrency("R$");
+// Result: "BRL"
+
+symbolToCurrency("unknown");
+// Result: "EUR" (fallback)
+```
+
+**`currencyToSymbol(currency: string | null | undefined): string`** — Converts ISO 4217 currency codes to their corresponding symbols. Supports 50+ currencies with intelligent fallbacks.
+
+```javascript
+currencyToSymbol("EUR");
+// Result: "€"
+
+currencyToSymbol("USD");
+// Result: "$"
+
+currencyToSymbol("KRW");
+// Result: "₩"
+
+currencyToSymbol("BRL");
+// Result: "R$"
+
+currencyToSymbol("UNKNOWN");
+// Result: "€" (fallback)
+```
+
+### 🔒 Security Utilities
+
+**`checkMarkdownSecurity(text: string | null | undefined): SecurityCheckResult`** — Comprehensive markdown security validation with XSS protection, threat detection, and automatic sanitization.
+
+```typescript
+import { checkMarkdownSecurity } from "@salespark/toolkit";
+
+// Safe content
+checkMarkdownSecurity("# Hello World\n\nThis is **bold** text.");
+// Result: { isValid: true, text: "...", risks: [], sanitized: false }
+
+// Dangerous content with script
+checkMarkdownSecurity('<script>alert("xss")</script>');
+// Result: { 
+//   isValid: false, 
+//   text: "", 
+//   risks: [{ type: "scriptTags", severity: "critical", description: "..." }], 
+//   sanitized: true 
+// }
+
+// Content with multiple threats
+checkMarkdownSecurity('<iframe src="evil.com"></iframe><div onclick="bad()">test</div>');
+// Result: Multiple risks detected, sorted by severity
+```
+
+**`sanitizeMarkdown(text: string | null | undefined): string`** — Aggressive markdown sanitization removing all HTML tags, scripts, and suspicious content.
+
+```typescript
+import { sanitizeMarkdown } from "@salespark/toolkit";
+
+sanitizeMarkdown('<p>Hello <strong>World</strong></p>');
+// Result: "Hello World"
+
+sanitizeMarkdown('javascript:alert("xss")');
+// Result: "alert(\"xss\")"
+
+sanitizeMarkdown('<script>alert(1)</script>Safe text');
+// Result: "Safe text"
+```
+
+**`assessSecurityRisks(risks: SecurityRisk[]): SecurityAssessment`** — Risk assessment and scoring system with actionable recommendations.
+
+```typescript
+import { assessSecurityRisks } from "@salespark/toolkit";
+
+const risks = [
+  { type: "scriptTags", severity: "critical", description: "Script injection detected" }
+];
+
+assessSecurityRisks(risks);
+// Result: {
+//   score: 100,
+//   level: "critical",
+//   recommendations: [
+//     "URGENT: Critical security risks detected - do not render this content",
+//     "Always validate content from untrusted sources",
+//     "Consider implementing Content Security Policy (CSP)"
+//   ]
+// }
+
+// Safe content
+assessSecurityRisks([]);
+// Result: { score: 0, level: "safe", recommendations: ["Content appears safe to use"] }
+```
+
 ### 🌐 Environment Detection
 
 **`isBrowser: boolean`** — True if running in browser.
@@ -503,6 +681,28 @@ The following functions are deprecated but maintained for backward compatibility
 - `parseToBool` — Use `toBool` instead.
 
 ### ⚡ Function Utilities (Deprecated)
+### ✅ Validation Utilities
+
+**`isPTTaxId(value: string | number): boolean`** — Validates a Portuguese Tax ID (NIF). Rules: 9 digits, Mod11 check digit with weights 9..2, allowed leading digits (1,2,3,5,6,8,9), strips separators, rejects repeated-digit sequences.
+
+```ts
+isPTTaxId("123456789");        // false (check digit likely invalid)
+isPTTaxId("123 456 789");      // false (whitespace stripped before validation)
+isPTTaxId("423456789");        // false (prefix 4 not allowed)
+```
+
+> Deprecated alias: `isValidPTTaxId` (will be removed in a future release)
+
+**`isValidIBAN(value: string): boolean`** — Validates International Bank Account Numbers (IBAN) according to ISO 13616. Rules: Country-specific format and length, MOD-97 checksum validation, BBAN format validation, supports all IBAN registry countries, strips formatting automatically.
+
+```ts
+isValidIBAN("NL91ABNA0417164300");     // true (valid Dutch IBAN)
+isValidIBAN("NL91 ABNA 0417 1643 00"); // true (spaces stripped)
+isValidIBAN("GB29NWBK60161331926819"); // true (valid UK IBAN)
+isValidIBAN("DE89370400440532013000");  // true (valid German IBAN)
+isValidIBAN("NL91ABNA0417164301");     // false (invalid checksum)
+```
+
 
 - `isNullOrUndefined` — Use `isNil` instead.
 - `isNullOrUndefinedTextInc` — Use `isNilText` instead.
@@ -568,5 +768,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 3_  
-_Last update: 23-08-2025_
+_Document version: 4_  
+_Last update: 25-09-2025_
