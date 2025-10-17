@@ -353,6 +353,24 @@ randomDigits(6);
 // Result: "482751" (random)
 ```
 
+**`randomDigits(length?: number, options?: { charset?: string; noLeadingZero?: boolean }): string`** — Generates a random string of digits with secure randomness when available.
+
+```javascript
+randomDigits(6);
+// Result: "482751" (random)
+```
+
+**`formatDecimalNumber(value: number | string | null | undefined, decimals?: number): string`** — Formats a number with specified decimal places, intelligently handling European (`1.234,56`) and US (`1,234.56`) number formats.
+
+```javascript
+formatDecimalNumber(1234.5678); // "1234.57"
+formatDecimalNumber("1.234,56", 2); // "1234.56" (European format)
+formatDecimalNumber("1,234.56", 2); // "1234.56" (US format)
+formatDecimalNumber("1234,56", 3); // "1234.560"
+formatDecimalNumber(null, 2); // "0.00"
+formatDecimalNumber("invalid", 2); // "0.00"
+```
+
 ### ✅ Boolean Utilities
 
 **`toBool(value: unknown, def?: boolean): boolean`** — Converts a value to boolean, supporting common string/number representations.
@@ -596,15 +614,17 @@ checkMarkdownSecurity("# Hello World\n\nThis is **bold** text.");
 
 // Dangerous content with script
 checkMarkdownSecurity('<script>alert("xss")</script>');
-// Result: { 
-//   isValid: false, 
-//   text: "", 
-//   risks: [{ type: "scriptTags", severity: "critical", description: "..." }], 
-//   sanitized: true 
+// Result: {
+//   isValid: false,
+//   text: "",
+//   risks: [{ type: "scriptTags", severity: "critical", description: "..." }],
+//   sanitized: true
 // }
 
 // Content with multiple threats
-checkMarkdownSecurity('<iframe src="evil.com"></iframe><div onclick="bad()">test</div>');
+checkMarkdownSecurity(
+  '<iframe src="evil.com"></iframe><div onclick="bad()">test</div>'
+);
 // Result: Multiple risks detected, sorted by severity
 ```
 
@@ -613,13 +633,13 @@ checkMarkdownSecurity('<iframe src="evil.com"></iframe><div onclick="bad()">test
 ```typescript
 import { sanitizeMarkdown } from "@salespark/toolkit";
 
-sanitizeMarkdown('<p>Hello <strong>World</strong></p>');
+sanitizeMarkdown("<p>Hello <strong>World</strong></p>");
 // Result: "Hello World"
 
 sanitizeMarkdown('javascript:alert("xss")');
 // Result: "alert(\"xss\")"
 
-sanitizeMarkdown('<script>alert(1)</script>Safe text');
+sanitizeMarkdown("<script>alert(1)</script>Safe text");
 // Result: "Safe text"
 ```
 
@@ -629,7 +649,11 @@ sanitizeMarkdown('<script>alert(1)</script>Safe text');
 import { assessSecurityRisks } from "@salespark/toolkit";
 
 const risks = [
-  { type: "scriptTags", severity: "critical", description: "Script injection detected" }
+  {
+    type: "scriptTags",
+    severity: "critical",
+    description: "Script injection detected",
+  },
 ];
 
 assessSecurityRisks(risks);
@@ -655,10 +679,10 @@ assessSecurityRisks([]);
 ```typescript
 import { isPTTaxId } from "@salespark/toolkit";
 
-isPTTaxId("123456789");        // false (invalid check digit)
-isPTTaxId("123 456 789");      // false (spaces stripped automatically)
-isPTTaxId("513183504");        // true (valid NIF)
-isPTTaxId("423456789");        // false (invalid prefix - 4 not allowed)
+isPTTaxId("123456789"); // false (invalid check digit)
+isPTTaxId("123 456 789"); // false (spaces stripped automatically)
+isPTTaxId("513183504"); // true (valid NIF)
+isPTTaxId("423456789"); // false (invalid prefix - 4 not allowed)
 
 // Deprecated alias (use isPTTaxId instead)
 // isValidPTTaxId("513183504");   // true
@@ -669,12 +693,12 @@ isPTTaxId("423456789");        // false (invalid prefix - 4 not allowed)
 ```typescript
 import { isValidIBAN } from "@salespark/toolkit";
 
-isValidIBAN("NL91ABNA0417164300");     // true (valid Dutch IBAN)
+isValidIBAN("NL91ABNA0417164300"); // true (valid Dutch IBAN)
 isValidIBAN("NL91 ABNA 0417 1643 00"); // true (spaces stripped automatically)
 isValidIBAN("GB29NWBK60161331926819"); // true (valid UK IBAN)
-isValidIBAN("DE89370400440532013000");  // true (valid German IBAN)
-isValidIBAN("NL91ABNA0417164301");     // false (invalid checksum)
-isValidIBAN("XX1234567890");           // false (invalid country code)
+isValidIBAN("DE89370400440532013000"); // true (valid German IBAN)
+isValidIBAN("NL91ABNA0417164301"); // false (invalid checksum)
+isValidIBAN("XX1234567890"); // false (invalid country code)
 ```
 
 ### 🌐 Environment Detection
@@ -710,7 +734,7 @@ The following functions are deprecated but maintained for backward compatibility
 ### ⚡ Function Utilities (Deprecated)
 
 - `isNullOrUndefined` — Use `isNil` instead.
-- `isNullOrUndefinedTextInc` — Use `isNilText` instead.  
+- `isNullOrUndefinedTextInc` — Use `isNilText` instead.
 - `isNullUndefinedOrEmpty` — Use `isNilOrEmpty` instead.
 - `isNullOrUndefinedInArray` — Use `hasNilOrEmpty` instead.
 - `isNullOrUndefinedEmptyOrZero` — Use `isNilEmptyOrZeroLen` instead.

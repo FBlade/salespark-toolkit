@@ -176,4 +176,59 @@ export function randomDigits(
 /**
  * @deprecated Use `randomDigits` instead.
  */
+
 export const otp = randomDigits;
+
+/******************************************************
+ * ##: Decimal Number Formatter
+ * Formats a number with specified decimal places, handling comma/dot normalization.
+ *
+ * Intelligently handles European number formats (1.234,56) and US formats (1,234.56).
+ * Converts strings to numbers and applies decimal formatting.
+ * @param {number|string|null|undefined} value Number value to format
+ * @param {number} decimals Number of decimal places (default: 2)
+ * @returns {string} Formatted number string with specified decimals
+ * History:
+ * 16-10-2025: Created
+ ****************************************************/
+export const formatDecimalNumber = (
+  value: number | string | null | undefined,
+  decimals: number = 2
+): string => {
+  try {
+    // Handle nil values
+    let processedValue: string | number = value ?? 0;
+
+    // Handle string normalization for comma/dot formats
+    if (typeof processedValue === "string") {
+      const trimmed = processedValue.trim();
+
+      if (trimmed.includes(",") && trimmed.includes(".")) {
+        const lastComma = trimmed.lastIndexOf(",");
+        const lastDot = trimmed.lastIndexOf(".");
+
+        processedValue =
+          lastComma > lastDot
+            ? trimmed.replace(/\./g, "").replace(",", ".") // European style
+            : trimmed.replace(/,/g, ""); // US style
+      } else if (trimmed.includes(",")) {
+        processedValue = trimmed.replace(/,/g, ".");
+      } else {
+        processedValue = trimmed;
+      }
+    }
+
+    const numValue = parseFloat(String(processedValue));
+
+    // Handle invalid numbers
+    if (isNaN(numValue)) {
+      return (0).toFixed(Math.max(0, Math.floor(decimals)));
+    }
+
+    return numValue.toFixed(Math.max(0, Math.floor(decimals)));
+  } catch (error) {
+    /* c8 ignore start */
+    return (0).toFixed(Math.max(0, Math.floor(decimals)));
+    /* c8 ignore end */
+  }
+};
