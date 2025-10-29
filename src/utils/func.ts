@@ -73,11 +73,12 @@ export const isNilText = (value: unknown): boolean => {
  * @param {unknown} value - Value to check
  * History:
  * 21-08-2025: Created
+ * 18-10-2025: Trim before checking empty
  ****************************************************/
 export const isNilOrEmpty = (value: unknown): boolean => {
   try {
-    return isNil(value) || value === "";
-  /* c8 ignore next -- defensive fallback (should never throw) */
+    return isNil(value) || (typeof value === "string" && value?.trim() === "");
+    /* c8 ignore next -- defensive fallback (should never throw) */
   } catch {
     return true;
   }
@@ -368,7 +369,7 @@ export const addThousandsSpace = (value: number | string): string => {
  * History:
  * 25-09-2025: Created
  ****************************************************/
-export const delay = (ms: number): Promise<void> => 
+export const delay = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)));
 
 /******************************************************
@@ -387,7 +388,7 @@ export const isNilTextOrEmpty = (value: unknown): boolean => {
       return v === "null" || v === "undefined";
     }
     return false;
-  /* c8 ignore next -- defensive fallback (should never throw) */
+    /* c8 ignore next -- defensive fallback (should never throw) */
   } catch {
     return true; // safest fallback
   }
@@ -415,8 +416,9 @@ export const formatCurrency = (
 ): string => {
   try {
     // Normalize input value
-    const numValue = value === undefined || value === null || value === "" ? 0 : Number(value);
-    
+    const numValue =
+      value === undefined || value === null || value === "" ? 0 : Number(value);
+
     if (isNaN(numValue) || !isFinite(numValue)) {
       return withoutCurrencySymbol ? "0,00" : "0,00 €";
     }
@@ -461,7 +463,7 @@ export const parseName = (
 
     // Trim whitespace and normalize spacing
     const cleanName = name.toString().trim().replace(/\s+/g, " ");
-    
+
     if (cleanName === "") {
       return { firstName: "", lastName: "" };
     }
@@ -475,7 +477,7 @@ export const parseName = (
     const nameParts = cleanName.split(" ");
     const firstName = nameParts[0];
     const lastName = nameParts[nameParts.length - 1];
-    
+
     return { firstName, lastName };
   } catch (error) {
     /* c8 ignore start */
@@ -497,16 +499,14 @@ export const parseName = (
  * History:
  * 25-09-2025: Created
  ****************************************************/
-export const symbolToCurrency = (
-  symbol: string | null | undefined
-): string => {
+export const symbolToCurrency = (symbol: string | null | undefined): string => {
   try {
     if (!symbol || typeof symbol !== "string") {
       return "EUR";
     }
 
     const normalizedSymbol = symbol.trim();
-    
+
     switch (normalizedSymbol) {
       case "€":
         return "EUR";
@@ -637,7 +637,7 @@ export const currencyToSymbol = (
     }
 
     const normalizedCurrency = currency.trim().toUpperCase();
-    
+
     switch (normalizedCurrency) {
       case "EUR":
         return "€";

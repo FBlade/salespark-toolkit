@@ -28,13 +28,14 @@ export function round(n: number, decimals = 0) {
  * Safely converts a value to an integer. Returns defaultValue if parsing fails or results in NaN.
  *
  * Notes:
- * Examples: toInteger("42") -> 42, toInteger("abc", 10) -> 10, toInteger(undefined) -> 0, toInteger(3.9) -> 3
+ * Examples: safeParseInt("42") -> 42, safeParseInt("abc", 10) -> 10, safeParseInt(undefined) -> 0, safeParseInt(3.9) -> 3
  * @param {unknown} value - Value to convert
  * @param {Number} defaultValue - Default value if parsing fails
  * History:
  * 21-08-2025: Created
+ * 29-10-2025: Renamed from toInteger to safeParseInt
  ****************************************************/
-export function toInteger(value: unknown, defaultValue = 0): number {
+export function safeParseInt(value: unknown, defaultValue = 0): number {
   try {
     const safeValue = parseInt(String(value), 10);
     return isNaN(safeValue) ? defaultValue : safeValue;
@@ -43,15 +44,14 @@ export function toInteger(value: unknown, defaultValue = 0): number {
   }
 }
 
-/******************************************************
- * ##: Safe Parse Int (Alias)
- * Alias for safe integer conversion (for discoverability/backward naming)
- * @param {unknown} value - Value to convert
- * @param {Number} defaultValue - Default value if parsing fails
- * History:
- * 21-08-2025: Created
- ****************************************************/
-export const safeParseInt = toInteger;
+/* ======================================================================================
+ * Deprecated aliases (backward-compatibility)
+ * Keep until downstream code is migrated. Remove in a major release.
+ * ====================================================================================*/
+/**
+ * @deprecated Use `safeParseFloat` instead.
+ */
+export const toInteger = safeParseInt;
 
 /******************************************************
  * ##: Safe Number Conversion
@@ -59,13 +59,13 @@ export const safeParseInt = toInteger;
  *
  * Notes:
  * Handles commas as decimal/thousands separators. Returns 0 for null/undefined/empty string or invalid parsing.
- * Examples: toNumber("123.45") -> 123.45, toNumber("123,45") -> 123.45, toNumber("1,234.56") -> 1234.56, toNumber("abc", 2) -> 0, toNumber(42) -> 42
- * @param {unknown} value - Value to convert
+ * Examples: safeParseFloat("123.45") -> 123.45, safeParseFloat("123,45") -> 123.45, safeParseFloat("1,234.56") -> 1234.56, safeParseFloat("abc", 2) -> 0, safeParseFloat(42) -> 42 * @param {unknown} value - Value to convert
  * @param {Number} decimals - Number of decimal places
  * History:
  * 21-08-2025: Created
+ * * 29-10-2025: Renamed from toNumber to safeParseFloat
  ****************************************************/
-export function toNumber(value: unknown, decimals = 6): number {
+export function safeParseFloat(value: unknown, decimals = 6): number {
   try {
     if (value === undefined || value === null || value === "") return 0;
 
@@ -95,9 +95,14 @@ export function toNumber(value: unknown, decimals = 6): number {
  * Keep until downstream code is migrated. Remove in a major release.
  * ====================================================================================*/
 /**
- * @deprecated Use `toNumber` instead.
+ * @deprecated Use `safeParseFloat` instead.
  */
-export const parseToNumber = toNumber;
+export const toNumber = safeParseFloat;
+
+/**
+ * @deprecated Use `safeParseFloat` instead.
+ */
+export const parseToNumber = safeParseFloat;
 
 /******************************************************
  * ##: Secure Random Index

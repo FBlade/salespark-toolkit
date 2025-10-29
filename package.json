@@ -1,6 +1,6 @@
 {
   "name": "@salespark/toolkit",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "private": false,
   "description": "Collection of utility functions and helpers, designed to speed up development across SalesPark projects. Includes common helpers, reusable patterns, and extended functions.",
   "license": "MIT",
@@ -62,17 +62,6 @@
     "tsup": "^8.2.4",
     "typescript": "^5.5.4",
     "vitest": "^3.2.4"
-  },
-  "peerDependencies": {
-    "react": ">=17 || >=18"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    }
-  },
-  "engines": {
-    "node": ">=20"
   },
   "publishConfig": {
     "access": "public"

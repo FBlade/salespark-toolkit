@@ -311,39 +311,35 @@ sanitize("<script>alert('hack')</script>Hello World!", 20);
 
 ### 🔢 Number Utilities
 
-**`clamp(n: number, min: number, max: number): number`** — Restricts a number within min and max bounds.
+**`clamp(n: number, min: number, max: number): number`** — Restricts a number to be within the min and max bounds.
 
 ```javascript
-clamp(15, 0, 10);
-// Result: 10
+clamp(10, 0, 5); // 5
+clamp(-5, 0, 10); // 0
 ```
 
-**`round(n: number, decimals?: number): number`** — Rounds a number to fixed decimal places.
+**`round(n: number, decimals?: number): number`** — Rounds a number to a fixed number of decimals without floating point surprises.
 
 ```javascript
-round(3.14159, 2);
-// Result: 3.14
+round(1.2345, 2); // 1.23
+round(1.235, 2); // 1.24
 ```
 
-**`toInteger(value: unknown, defaultValue?: number): number`** — Safely converts a value to an integer.
+**`safeParseInt(value: unknown, defaultValue?: number): number`** — Safely converts a value to an integer with fallback.
 
 ```javascript
-toInteger("42.7");
-// Result: 42
+safeParseInt("42"); // 42
+safeParseInt("abc", 10); // 10
+safeParseInt(3.9); // 3
 ```
 
-**`safeParseInt(value: unknown, defaultValue?: number): number`** — Alias for safe integer conversion.
+**`safeParseFloat(value: unknown, decimals?: number): number`** — Safely parses a value into a number with decimal precision and comma/dot normalization.
 
 ```javascript
-safeParseInt("abc", 0);
-// Result: 0
-```
-
-**`toNumber(value: unknown, decimals?: number): number`** — Safely parses a value into a number with optional decimal precision.
-
-```javascript
-toNumber("123,45", 2);
-// Result: 123.45
+safeParseFloat("123.45"); // 123.45
+safeParseFloat("123,45"); // 123.45
+safeParseFloat("1,234.56"); // 1234.56
+safeParseFloat("abc"); // 0
 ```
 
 **`randomDigits(length?: number, options?: { charset?: string; noLeadingZero?: boolean }): string`** — Generates a random string of digits with secure randomness when available.
@@ -356,9 +352,12 @@ randomDigits(6);
 **`randomDigits(length?: number, options?: { charset?: string; noLeadingZero?: boolean }): string`** — Generates a random string of digits with secure randomness when available.
 
 ```javascript
-randomDigits(6);
-// Result: "482751" (random)
+randomDigits(6); // "847293"
+randomDigits(4, { noLeadingZero: true }); // "3847" (no leading zero)
+randomDigits(6, { charset: "ABCDEF0123456789" }); // "3F2A9D" (hex)
 ```
+
+**`formatDecimalNumber(value: number | string | null | undefined, decimals?: number): string`** — Formats a number with specified decimal places, intelligently handling European (`1.234,56`) and US (`1,234.56`) number formats.
 
 **`formatDecimalNumber(value: number | string | null | undefined, decimals?: number): string`** — Formats a number with specified decimal places, intelligently handling European (`1.234,56`) and US (`1,234.56`) number formats.
 
@@ -370,6 +369,13 @@ formatDecimalNumber("1234,56", 3); // "1234.560"
 formatDecimalNumber(null, 2); // "0.00"
 formatDecimalNumber("invalid", 2); // "0.00"
 ```
+
+#### 🗑️ Deprecated (Number Utilities)
+
+- **`toInteger`** → Use `safeParseInt` instead
+- **`toNumber`** → Use `safeParseFloat` instead
+- **`parseToNumber`** → Use `safeParseFloat` instead
+- **`otp`** → Use `randomDigits` instead
 
 ### ✅ Boolean Utilities
 
@@ -443,13 +449,19 @@ isNilText("undefined");
 // Result: true
 ```
 
-**`isNilOrEmpty(value: unknown): boolean`** — Checks if value is null/undefined or an empty string.
+**`isNilOrEmpty(value: unknown): boolean`** — Checks if value is null/undefined or an empty string (trimmed).
 
 ```javascript
 isNilOrEmpty("");
 // Result: true
 
+isNilOrEmpty(" ");
+// Result: true
+
 isNilOrEmpty(null);
+// Result: true
+
+isNilOrEmpty(undefined);
 // Result: true
 ```
 
@@ -803,5 +815,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 5_  
-_Last update: 25-09-2025_
+_Document version: 6_  
+_Last update: 29-10-2025_
