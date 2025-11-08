@@ -485,13 +485,13 @@ isNilEmptyOrZeroLen("");
 // Result: true
 ```
 
-**`isNilOrZeroLen(value: unknown): boolean`** — Checks if value is nil or has zero length.
+**`isNilEmptyOrZeroLength(value: unknown): boolean`**
 
 ```javascript
-isNilOrZeroLen([]);
+isNilEmptyOrZeroLength([]);
 // Result: true
 
-isNilOrZeroLen(null);
+isNilEmptyOrZeroLength("");
 // Result: true
 ```
 
@@ -749,8 +749,10 @@ The following functions are deprecated but maintained for backward compatibility
 - `isNullOrUndefinedTextInc` — Use `isNilText` instead.
 - `isNullUndefinedOrEmpty` — Use `isNilOrEmpty` instead.
 - `isNullOrUndefinedInArray` — Use `hasNilOrEmpty` instead.
-- `isNullOrUndefinedEmptyOrZero` — Use `isNilEmptyOrZeroLen` instead.
-- `isNullUndefinedOrZero` — Use `isNilOrZeroLen` instead.
+- `isNullOrUndefinedEmptyOrZero` — Use `isNilEmptyOrZeroLength` instead.
+- `isNilEmptyOrZeroLen` — Use `isNilEmptyOrZeroLength` instead.
+- `isNullUndefinedOrZero` — Use `isNilEmptyOrZeroLength` instead.
+- `isNilOrZeroLen` — Use `isNilEmptyOrZeroLength` instead.
 - `isNullOrUndefinedOrNaN` — Use `isNilOrNaN` instead.
 - `humanFileSize` — Use `formatBytes` instead.
 - `getStringSimilarity` — Use `stringSimilarity` instead.
@@ -815,5 +817,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 6_  
-_Last update: 29-10-2025_
+_Document version: 7_  
+_Last update: 08-11-2025_

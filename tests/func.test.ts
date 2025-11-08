@@ -8,6 +8,8 @@ import {
   hasNilOrEmpty,
   isNilEmptyOrZeroLen,
   isNilOrZeroLen,
+  isNilEmptyOrZeroLength,
+  isNilOrZeroLength,
   isNilOrNaN,
   formatBytes,
   formatCurrency,
@@ -96,14 +98,39 @@ describe("isNilEmptyOrZeroLen", () => {
   });
 });
 
+describe("isNilEmptyOrZeroLength", () => {
+  it("should be the same as isNilEmptyOrZeroLen", () => {
+    expect(isNilEmptyOrZeroLength(null)).toBe(true);
+    expect(isNilEmptyOrZeroLength(undefined)).toBe(true);
+    expect(isNilEmptyOrZeroLength("")).toBe(true);
+    expect(isNilEmptyOrZeroLength([])).toBe(true);
+    expect(isNilEmptyOrZeroLength([1])).toBe(false);
+    expect(isNilEmptyOrZeroLength("abc")).toBe(false);
+    expect(isNilEmptyOrZeroLength({ length: 0 })).toBe(true);
+    expect(isNilEmptyOrZeroLength({ length: 5 })).toBe(false);
+  });
+});
+
 describe("isNilOrZeroLen", () => {
   it("should detect nil or zero length", () => {
     expect(isNilOrZeroLen(null)).toBe(true);
     expect(isNilOrZeroLen(undefined)).toBe(true);
     expect(isNilOrZeroLen([])).toBe(true);
     expect(isNilOrZeroLen([1])).toBe(false);
-    expect(isNilOrZeroLen("")).toBe(true);
+    expect(isNilOrZeroLen("")).toBe(false);
     expect(isNilOrZeroLen("abc")).toBe(false);
+  });
+});
+describe("isNilOrZeroLength", () => {
+  it("should be the same as isNilOrZeroLen", () => {
+    expect(isNilOrZeroLength(null)).toBe(true);
+    expect(isNilOrZeroLength(undefined)).toBe(true);
+    expect(isNilOrZeroLength([])).toBe(true);
+    expect(isNilOrZeroLength([1])).toBe(false);
+    expect(isNilOrZeroLength("")).toBe(false);
+    expect(isNilOrZeroLength("abc")).toBe(false);
+    expect(isNilOrZeroLength({ length: 0 })).toBe(true);
+    expect(isNilOrZeroLength({ length: 5 })).toBe(false);
   });
 });
 
@@ -192,15 +219,15 @@ describe("formatCurrency", () => {
     const result1 = formatCurrency(1234.56);
     expect(result1).toContain("1234,56");
     expect(result1).toContain("€");
-    
+
     const result0 = formatCurrency(0);
     expect(result0).toContain("0,00");
     expect(result0).toContain("€");
-    
+
     const result999 = formatCurrency(999.9);
     expect(result999).toContain("999,90");
     expect(result999).toContain("€");
-    
+
     const resultBig = formatCurrency(1000000.123);
     expect(resultBig).toContain("000,12");
     expect(resultBig).toContain("€");
@@ -216,9 +243,9 @@ describe("formatCurrency", () => {
     const result = formatCurrency("1234.56");
     expect(result).toContain("1234,56");
     expect(result).toContain("€");
-    
+
     expect(formatCurrency("1000", true)).toBe("1000,00");
-    
+
     const result999 = formatCurrency("999.123");
     expect(result999).toContain("999,12");
     expect(result999).toContain("€");
@@ -228,15 +255,15 @@ describe("formatCurrency", () => {
     const resultNull = formatCurrency(null);
     expect(resultNull).toContain("0,00");
     expect(resultNull).toContain("€");
-    
+
     const resultUnd = formatCurrency(undefined);
     expect(resultUnd).toContain("0,00");
     expect(resultUnd).toContain("€");
-    
+
     const resultEmpty = formatCurrency("");
     expect(resultEmpty).toContain("0,00");
     expect(resultEmpty).toContain("€");
-    
+
     expect(formatCurrency(null, true)).toBe("0,00");
     expect(formatCurrency(undefined, true)).toBe("0,00");
   });
@@ -245,13 +272,13 @@ describe("formatCurrency", () => {
     const resultInvalid = formatCurrency("not-a-number");
     expect(resultInvalid).toContain("0,00");
     expect(resultInvalid).toContain("€");
-    
+
     expect(formatCurrency("abc", true)).toBe("0,00");
-    
+
     const resultNaN = formatCurrency(NaN);
     expect(resultNaN).toContain("0,00");
     expect(resultNaN).toContain("€");
-    
+
     const resultInf = formatCurrency(Infinity);
     expect(resultInf).toContain("0,00");
     expect(resultInf).toContain("€");
@@ -267,7 +294,7 @@ describe("formatCurrency", () => {
   it("should format large numbers with thousands separator", () => {
     const result1 = formatCurrency(1000000);
     expect(result1).toMatch(/1.000.000,00\s*€/);
-    
+
     const result2 = formatCurrency(12345.67, true);
     expect(result2).toMatch(/12.345,67/);
   });
@@ -335,38 +362,83 @@ describe("parseName", () => {
   });
 
   it("should handle two names", () => {
-    expect(parseName("João Silva")).toEqual({ firstName: "João", lastName: "Silva" });
-    expect(parseName("Maria Santos")).toEqual({ firstName: "Maria", lastName: "Santos" });
-    expect(parseName("Ana Costa")).toEqual({ firstName: "Ana", lastName: "Costa" });
+    expect(parseName("João Silva")).toEqual({
+      firstName: "João",
+      lastName: "Silva",
+    });
+    expect(parseName("Maria Santos")).toEqual({
+      firstName: "Maria",
+      lastName: "Santos",
+    });
+    expect(parseName("Ana Costa")).toEqual({
+      firstName: "Ana",
+      lastName: "Costa",
+    });
   });
 
   it("should handle multiple names (first and last)", () => {
-    expect(parseName("João Pedro Silva")).toEqual({ firstName: "João", lastName: "Silva" });
-    expect(parseName("Maria José Santos Costa")).toEqual({ firstName: "Maria", lastName: "Costa" });
-    expect(parseName("Ana Rita Ferreira Oliveira")).toEqual({ firstName: "Ana", lastName: "Oliveira" });
+    expect(parseName("João Pedro Silva")).toEqual({
+      firstName: "João",
+      lastName: "Silva",
+    });
+    expect(parseName("Maria José Santos Costa")).toEqual({
+      firstName: "Maria",
+      lastName: "Costa",
+    });
+    expect(parseName("Ana Rita Ferreira Oliveira")).toEqual({
+      firstName: "Ana",
+      lastName: "Oliveira",
+    });
   });
 
   it("should handle names with extra whitespace", () => {
-    expect(parseName("  João   Silva  ")).toEqual({ firstName: "João", lastName: "Silva" });
-    expect(parseName("Maria    Santos")).toEqual({ firstName: "Maria", lastName: "Santos" });
-    expect(parseName("   Ana   Rita   Costa   ")).toEqual({ firstName: "Ana", lastName: "Costa" });
+    expect(parseName("  João   Silva  ")).toEqual({
+      firstName: "João",
+      lastName: "Silva",
+    });
+    expect(parseName("Maria    Santos")).toEqual({
+      firstName: "Maria",
+      lastName: "Santos",
+    });
+    expect(parseName("   Ana   Rita   Costa   ")).toEqual({
+      firstName: "Ana",
+      lastName: "Costa",
+    });
   });
 
   it("should handle names with special characters", () => {
-    expect(parseName("José-Maria Silva")).toEqual({ firstName: "José-Maria", lastName: "Silva" });
-    expect(parseName("Anne-Marie Dubois")).toEqual({ firstName: "Anne-Marie", lastName: "Dubois" });
-    expect(parseName("O'Connor")).toEqual({ firstName: "O'Connor", lastName: "" });
+    expect(parseName("José-Maria Silva")).toEqual({
+      firstName: "José-Maria",
+      lastName: "Silva",
+    });
+    expect(parseName("Anne-Marie Dubois")).toEqual({
+      firstName: "Anne-Marie",
+      lastName: "Dubois",
+    });
+    expect(parseName("O'Connor")).toEqual({
+      firstName: "O'Connor",
+      lastName: "",
+    });
   });
 
   it("should handle international names", () => {
     expect(parseName("李 小明")).toEqual({ firstName: "李", lastName: "小明" });
-    expect(parseName("José María García")).toEqual({ firstName: "José", lastName: "García" });
-    expect(parseName("François-Xavier de La Tour")).toEqual({ firstName: "François-Xavier", lastName: "Tour" });
+    expect(parseName("José María García")).toEqual({
+      firstName: "José",
+      lastName: "García",
+    });
+    expect(parseName("François-Xavier de La Tour")).toEqual({
+      firstName: "François-Xavier",
+      lastName: "Tour",
+    });
   });
 
   it("should handle edge cases defensively", () => {
     // Non-string input that can be coerced
-    expect(parseName(12345 as any)).toEqual({ firstName: "12345", lastName: "" });
+    expect(parseName(12345 as any)).toEqual({
+      firstName: "12345",
+      lastName: "",
+    });
     expect(parseName(true as any)).toEqual({ firstName: "true", lastName: "" });
   });
 });
@@ -510,7 +582,7 @@ describe("Currency conversion bidirectional tests", () => {
     expect(currencyToSymbol(symbolToCurrency("£"))).toBe("£");
     expect(currencyToSymbol(symbolToCurrency("$"))).toBe("$");
     expect(currencyToSymbol(symbolToCurrency("¥"))).toBe("¥");
-    
+
     // Code -> Symbol -> Code
     expect(symbolToCurrency(currencyToSymbol("EUR"))).toBe("EUR");
     expect(symbolToCurrency(currencyToSymbol("GBP"))).toBe("GBP");
@@ -700,6 +772,21 @@ describe("Defensive catch coverage (func.ts)", () => {
     expect(result as any).toBe(tricky);
   });
 
-  // Nota: isNilOrEmpty e isNilTextOrEmpty usam apenas comparações/typeof e não é viável provocar throw;
-  // os seus catch blocks são puramente defensivos e permanecem não cobertos realisticamente.
+  it("isNilEmptyOrZeroLength catch via throwing length getter", () => {
+    const obj = Object.defineProperty({}, "length", {
+      get() {
+        throw new Error("len boom");
+      },
+    });
+    expect(isNilEmptyOrZeroLength(obj)).toBe(true);
+  });
+
+  it("isNilOrZeroLength catch via throwing length getter", () => {
+    const obj = Object.defineProperty({}, "length", {
+      get() {
+        throw new Error("len boom");
+      },
+    });
+    expect(isNilOrZeroLength(obj)).toBe(true);
+  });
 });

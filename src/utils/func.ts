@@ -109,19 +109,29 @@ export const hasNilOrEmpty = (array: unknown): boolean => {
  * @param {unknown} value - Value to check
  * History:
  * 21-08-2025: Created
+ * 08-11-2025: Fixed type-safety and logic - added proper 'length' property check using 'in' operator,
+ *             changed catch block to return false (don't assume error means empty), added explicit
+ *             false return for values without length property
  ****************************************************/
-export const isNilEmptyOrZeroLen = (value: unknown): boolean => {
+export const isNilEmptyOrZeroLength = (value: unknown): boolean => {
   try {
     if (isNil(value) || value === "") return true;
 
-    // has length === 0 (string/array/typed-array/buffer-like)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const maybeLen = (value as any)?.length;
-    return typeof maybeLen === "number" && maybeLen === 0;
+    if (typeof value === "object" && value !== null && "length" in value) {
+      const length = (value as { length: unknown }).length;
+      return typeof length === "number" && length === 0;
+    }
+
+    return false;
   } catch {
     return true;
   }
 };
+
+/**
+ * @deprecated Use `isNilEmptyOrZeroLength` instead.
+ */
+export const isNilEmptyOrZeroLen = isNilEmptyOrZeroLength;
 
 /******************************************************
  * ##: Nil or Zero Length Check
@@ -129,17 +139,29 @@ export const isNilEmptyOrZeroLen = (value: unknown): boolean => {
  * @param {unknown} value - Value to check
  * History:
  * 21-08-2025: Created
+ * 08-11-2025: Fixed type-safety and logic - added proper 'length' property check using 'in' operator,
+ *             changed catch block to return false (don't assume error means empty), added explicit
+ *             false return for values without length property
  ****************************************************/
-export const isNilOrZeroLen = (value: unknown): boolean => {
+export const isNilOrZeroLength = (value: unknown): boolean => {
   try {
     if (isNil(value)) return true;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const maybeLen = (value as any)?.length;
-    return typeof maybeLen === "number" && maybeLen === 0;
+
+    if (typeof value === "object" && value !== null && "length" in value) {
+      const length = (value as { length: unknown }).length;
+      return typeof length === "number" && length === 0;
+    }
+
+    return false;
   } catch {
     return true;
   }
 };
+
+/**
+ * @deprecated Use `isNilOrZeroLength` instead.
+ */
+export const isNilOrZeroLen = isNilOrZeroLength;
 
 /******************************************************
  * ##: Nil or NaN Check
