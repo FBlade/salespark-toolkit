@@ -115,15 +115,24 @@ export const hasNilOrEmpty = (array: unknown): boolean => {
  ****************************************************/
 export const isNilEmptyOrZeroLength = (value: unknown): boolean => {
   try {
-    if (isNil(value) || value === "") return true;
+    // Check for nil first
+    if (isNil(value)) return true;
 
-    if (typeof value === "object" && value !== null && "length" in value) {
-      const length = (value as { length: unknown }).length;
-      return typeof length === "number" && length === 0;
-    }
+    // Check if value is empty string
+    if (value === "") return true;
 
-    return false;
+    // Check if value is string with length > 0
+    if (typeof value === "string" && value.length > 0) return false;
+
+    // Check if is array and has length > 0
+    if (Array.isArray(value) && value.length > 0) return false;
+
+    // For other types
+    return true;
+
+    // Error handling
   } catch {
+    // fallback
     return true;
   }
 };
@@ -145,15 +154,18 @@ export const isNilEmptyOrZeroLen = isNilEmptyOrZeroLength;
  ****************************************************/
 export const isNilOrZeroLength = (value: unknown): boolean => {
   try {
+    // Check for nil first
     if (isNil(value)) return true;
 
-    if (typeof value === "object" && value !== null && "length" in value) {
-      const length = (value as { length: unknown }).length;
-      return typeof length === "number" && length === 0;
-    }
+    // Check if is array and has length > 0
+    if (Array.isArray(value) && value.length > 0) return false;
 
-    return false;
+    // For other types
+    return true;
+
+    // Error handling
   } catch {
+    // fallback
     return true;
   }
 };
