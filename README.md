@@ -27,7 +27,7 @@ npm i @salespark/toolkit
 - **Array utilities**: chunk, uniqBy, deep equality, flatten, groupBy, etc.
 - **Object utilities**: pick, omit, clean objects, deep merge, etc.
 - **String utilities**: slugify, template fill, deburr, sanitize, etc.
-- **Number utilities**: clamp, round, safe parse, random digits, etc.
+- **Number utilities**: clamp, round, safe parse (locale-aware), random digits, etc.
 - **Function utilities**: debounce, throttle, formatCurrency, parseName, currency conversions, etc.
 - **Boolean utilities**: safe boolean conversion with common representations
 - **Validation utilities**: IBAN validator (ISO 13616), Portuguese tax ID validator
@@ -333,13 +333,16 @@ safeParseInt("abc", 10); // 10
 safeParseInt(3.9); // 3
 ```
 
-**`safeParseFloat(value: unknown, decimals?: number): number`** — Safely parses a value into a number with decimal precision and comma/dot normalization.
+**`safeParseFloat(value: unknown, decimals?: number): number`** — Safely parses a value into a number with decimal precision, handling locale separators (commas, dots, spaces) and invalid inputs.
 
 ```javascript
 safeParseFloat("123.45"); // 123.45
 safeParseFloat("123,45"); // 123.45
 safeParseFloat("1,234.56"); // 1234.56
+safeParseFloat("1 234,56"); // 1234.56 (spaces as thousands)
+safeParseFloat("1.234,56"); // 1234.56 (dot thousands, comma decimals)
 safeParseFloat("abc"); // 0
+safeParseFloat(NaN); // 0
 ```
 
 **`randomDigits(length?: number, options?: { charset?: string; noLeadingZero?: boolean }): string`** — Generates a random string of digits with secure randomness when available.
@@ -817,5 +820,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 7_  
-_Last update: 08-11-2025_
+_Document version: 8_  
+_Last update: 10-12-2025_

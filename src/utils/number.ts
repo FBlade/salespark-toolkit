@@ -63,28 +63,60 @@ export const toInteger = safeParseInt;
  * @param {Number} decimals - Number of decimal places
  * History:
  * 21-08-2025: Created
- * * 29-10-2025: Renamed from toNumber to safeParseFloat
+ * 29-10-2025: Renamed from toNumber to safeParseFloat
+ * 01-12-2025: Fixed space-separated thousands handling and improved number parsing logic
  ****************************************************/
 export function safeParseFloat(value: unknown, decimals = 6): number {
   try {
-    if (value === undefined || value === null || value === "") return 0;
-
-    let str = String(value);
-
-    // Normalize commas and dots
-    if (str.includes(",") && str.includes(".")) {
-      // Example: "1,234.56" -> "1234.56"
-      str = str.replace(/,/g, "");
-    } else if (str.includes(",")) {
-      // Example: "123,45" -> "123.45"
-      str = str.replace(",", ".");
+    // Fast path for numbers
+    if (typeof value === "number") {
+      return isNaN(value) ? 0 : Number(value.toFixed(decimals));
     }
 
-    const num = parseFloat(str);
-    if (isNaN(num)) return 0;
+    // Return 0 for null/undefined/empty
+    if (value === undefined || value === null || value === "") return 0;
 
-    // Apply decimal precision
-    return parseFloat(num.toFixed(decimals));
+    let str = String(value).trim();
+    if (!str) return 0;
+
+    // Remove all spaces (can be used as thousands separators)
+    str = str.replace(/\s+/g, "");
+
+    // Normalize separators
+    let normalized: string;
+
+    if (str.includes(",") && str.includes(".")) {
+      // Determine which is decimal separator (rightmost one)
+      const lastComma = str.lastIndexOf(",");
+      const lastDot = str.lastIndexOf(".");
+
+      if (lastDot > lastComma) {
+        // "1,234.56" -> remove commas
+        normalized = str.replace(/,/g, "");
+      } else {
+        // "1.234,56" -> swap separators
+        normalized = str.replace(/\./g, "").replace(",", ".");
+      }
+    } else if (str.includes(",")) {
+      // Check if comma is thousands separator or decimal separator
+      const parts = str.split(",");
+      if (parts.length === 2 && parts[1].length <= 2) {
+        // "123,45" -> decimal separator
+        normalized = str.replace(",", ".");
+      } else {
+        // "1,234" or "1,234,567" -> thousands separator
+        normalized = str.replace(/,/g, "");
+      }
+    } else {
+      normalized = str;
+    }
+
+    const num = parseFloat(normalized);
+    if (!isFinite(num)) return 0;
+
+    return Number(num.toFixed(decimals));
+
+    // Error handling
   } catch {
     return 0;
   }

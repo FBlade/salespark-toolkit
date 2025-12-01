@@ -6,6 +6,7 @@ import {
   toNumber,
   safeParseInt,
   parseToNumber,
+  safeParseFloat,
   randomDigits,
   otp,
   formatDecimalNumber,
@@ -23,14 +24,14 @@ describe("number utils", () => {
     });
   });
 
-  describe("toNumber edge cases", () => {
+  describe("safeParseFloat edge cases", () => {
     it("should return 0 if toString throws", () => {
       const badObj = {
         toString() {
           throw new Error("fail");
         },
       };
-      expect(toNumber(badObj)).toBe(0);
+      expect(safeParseFloat(badObj)).toBe(0);
     });
   });
 
@@ -54,10 +55,11 @@ describe("number utils", () => {
   });
 
   describe("parseToNumber (alias)", () => {
-    it("should behave like toNumber", () => {
+    it("should behave like safeParseFloat", () => {
       expect(parseToNumber("3.14")).toBeCloseTo(3.14);
       expect(parseToNumber("not a number")).toBe(0);
       expect(parseToNumber(2.718, 2)).toBeCloseTo(2.72);
+      expect(parseToNumber("1 234,56")).toBe(1234.56);
     });
   });
 
@@ -114,25 +116,49 @@ describe("number utils", () => {
     });
   });
 
-  describe("toNumber", () => {
+  describe("safeParseFloat", () => {
     it("should parse numbers from strings with dot or comma", () => {
-      expect(toNumber("123.45")).toBe(123.45);
-      expect(toNumber("123,45")).toBe(123.45);
-      expect(toNumber("1,234.56")).toBe(1234.56);
+      expect(safeParseFloat("123.45")).toBe(123.45);
+      expect(safeParseFloat("123,45")).toBe(123.45);
+      expect(safeParseFloat("1,234.56")).toBe(1234.56);
+      expect(safeParseFloat("1.234,56")).toBe(1234.56);
     });
     it("should return 0 for invalid input", () => {
-      expect(toNumber("abc")).toBe(0);
-      expect(toNumber(undefined)).toBe(0);
-      expect(toNumber(null)).toBe(0);
-      expect(toNumber("")).toBe(0);
+      expect(safeParseFloat("abc")).toBe(0);
+      expect(safeParseFloat(undefined)).toBe(0);
+      expect(safeParseFloat(null)).toBe(0);
+      expect(safeParseFloat("")).toBe(0);
+      expect(safeParseFloat(NaN)).toBe(0);
     });
     it("should handle numbers directly", () => {
-      expect(toNumber(42)).toBe(42);
-      expect(toNumber(3.14159, 2)).toBe(3.14);
+      expect(safeParseFloat(42)).toBe(42);
+      expect(safeParseFloat(3.14159, 2)).toBe(3.14);
     });
     it("should apply decimal precision", () => {
-      expect(toNumber("1.23456789", 4)).toBe(1.2346);
-      expect(toNumber("1.23456789", 2)).toBe(1.23);
+      expect(safeParseFloat("1.23456789", 4)).toBe(1.2346);
+      expect(safeParseFloat("1.23456789", 2)).toBe(1.23);
+    });
+    it("should handle spaces used as thousands separators", () => {
+      expect(safeParseFloat("1 234,56")).toBe(1234.56);
+      expect(safeParseFloat("1 234 567.89")).toBe(1234567.89);
+      expect(safeParseFloat("   9 876.543210   ", 3)).toBe(9876.543);
+    });
+  });
+
+  describe("toNumber (alias)", () => {
+    it("should forward to safeParseFloat", () => {
+      const inputs = [
+        "123.45",
+        "1.234,56",
+        "1 234 567.89",
+        undefined,
+        null,
+        "",
+      ];
+
+      for (const value of inputs) {
+        expect(toNumber(value as any)).toBe(safeParseFloat(value as any));
+      }
     });
   });
 

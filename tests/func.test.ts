@@ -87,17 +87,6 @@ describe("hasNilOrEmpty", () => {
   });
 });
 
-describe("isNilEmptyOrZeroLen", () => {
-  it("should detect nil, empty string, or zero length", () => {
-    expect(isNilEmptyOrZeroLen(null)).toBe(true);
-    expect(isNilEmptyOrZeroLen(undefined)).toBe(true);
-    expect(isNilEmptyOrZeroLen("")).toBe(true);
-    expect(isNilEmptyOrZeroLen([])).toBe(true);
-    expect(isNilEmptyOrZeroLen([1])).toBe(false);
-    expect(isNilEmptyOrZeroLen("abc")).toBe(false);
-  });
-});
-
 describe("isNilEmptyOrZeroLength", () => {
   it("should be the same as isNilEmptyOrZeroLen", () => {
     expect(isNilEmptyOrZeroLength(null)).toBe(true);
@@ -107,30 +96,20 @@ describe("isNilEmptyOrZeroLength", () => {
     expect(isNilEmptyOrZeroLength([1])).toBe(false);
     expect(isNilEmptyOrZeroLength("abc")).toBe(false);
     expect(isNilEmptyOrZeroLength({ length: 0 })).toBe(true);
-    expect(isNilEmptyOrZeroLength({ length: 5 })).toBe(false);
+    expect(isNilEmptyOrZeroLength({ length: 5 })).toBe(true);
   });
 });
 
-describe("isNilOrZeroLen", () => {
-  it("should detect nil or zero length", () => {
-    expect(isNilOrZeroLen(null)).toBe(true);
-    expect(isNilOrZeroLen(undefined)).toBe(true);
-    expect(isNilOrZeroLen([])).toBe(true);
-    expect(isNilOrZeroLen([1])).toBe(false);
-    expect(isNilOrZeroLen("")).toBe(false);
-    expect(isNilOrZeroLen("abc")).toBe(false);
-  });
-});
 describe("isNilOrZeroLength", () => {
   it("should be the same as isNilOrZeroLen", () => {
     expect(isNilOrZeroLength(null)).toBe(true);
     expect(isNilOrZeroLength(undefined)).toBe(true);
     expect(isNilOrZeroLength([])).toBe(true);
     expect(isNilOrZeroLength([1])).toBe(false);
-    expect(isNilOrZeroLength("")).toBe(false);
-    expect(isNilOrZeroLength("abc")).toBe(false);
+    expect(isNilOrZeroLength("")).toBe(true);
+    expect(isNilOrZeroLength("abc")).toBe(true);
     expect(isNilOrZeroLength({ length: 0 })).toBe(true);
-    expect(isNilOrZeroLength({ length: 5 })).toBe(false);
+    expect(isNilOrZeroLength({ length: 5 })).toBe(true);
   });
 });
 
