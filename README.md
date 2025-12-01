@@ -27,7 +27,7 @@ npm i @salespark/toolkit
 - **Array utilities**: chunk, uniqBy, deep equality, flatten, groupBy, etc.
 - **Object utilities**: pick, omit, clean objects, deep merge, etc.
 - **String utilities**: slugify, template fill, deburr, sanitize, etc.
-- **Number utilities**: clamp, round, safe parse (locale-aware), random digits, etc.
+- **Number utilities**: clamp, round, safe arithmetic/comparisons, safe parse (locale-aware), random digits, etc.
 - **Function utilities**: debounce, throttle, formatCurrency, parseName, currency conversions, etc.
 - **Boolean utilities**: safe boolean conversion with common representations
 - **Validation utilities**: IBAN validator (ISO 13616), Portuguese tax ID validator
@@ -323,6 +323,42 @@ clamp(-5, 0, 10); // 0
 ```javascript
 round(1.2345, 2); // 1.23
 round(1.235, 2); // 1.24
+```
+
+**`safeAdd(a: number, b: number, decimals?: number): number`** — Adds two numbers with rounding and guards against invalid operands and precision errors.
+
+```javascript
+safeAdd(0.1, 0.2, 2); // 0.3
+safeAdd(Number.NaN, 5); // 0 (invalid operand)
+```
+
+**`safeMultiply(a: number, b: number, decimals?: number): number`** — Multiplies two numbers safely with rounding and operand validation.
+
+```javascript
+safeMultiply(0.1, 0.2, 4); // 0.02
+safeMultiply(Infinity, 2); // 0 (invalid operand)
+```
+
+**`safeSubtract(a: number, b: number, decimals?: number): number`** — Subtracts numbers safely, clamping decimal precision when needed.
+
+```javascript
+safeSubtract(10, 3.3333, 2); // 6.67
+safeSubtract(5, Number.NaN); // 0 (invalid operand)
+```
+
+**`safeDivide(a: number, b: number, decimals?: number): number`** — Divides numbers with division-by-zero protection and precision normalization.
+
+```javascript
+safeDivide(1, 3, 3); // 0.333
+safeDivide(10, 0); // 0 (division by zero)
+```
+
+**`numbersEqual(a: number, b: number, decimals?: number): boolean`** — Safely compares two numbers using fixed decimal precision and invalid operand guards.
+
+```javascript
+numbersEqual(0.1 + 0.2, 0.3); // true
+numbersEqual(1.2345, 1.2344, 4); // false
+numbersEqual(NaN, 1); // false
 ```
 
 **`safeParseInt(value: unknown, defaultValue?: number): number`** — Safely converts a value to an integer with fallback.
@@ -820,5 +856,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 8_  
-_Last update: 10-12-2025_
+_Document version: 9_  
+_Last update: 01-12-2025_

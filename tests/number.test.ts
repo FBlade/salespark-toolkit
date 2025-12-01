@@ -7,6 +7,11 @@ import {
   safeParseInt,
   parseToNumber,
   safeParseFloat,
+  safeAdd,
+  safeMultiply,
+  safeSubtract,
+  safeDivide,
+  numbersEqual,
   randomDigits,
   otp,
   formatDecimalNumber,
@@ -159,6 +164,63 @@ describe("number utils", () => {
       for (const value of inputs) {
         expect(toNumber(value as any)).toBe(safeParseFloat(value as any));
       }
+    });
+  });
+
+  describe("safe arithmetic", () => {
+    it("should add numbers safely", () => {
+      expect(safeAdd(0.1, 0.2, 2)).toBe(0.3);
+      expect(safeAdd(10, -3, 0)).toBe(7);
+    });
+
+    it("should multiply numbers safely", () => {
+      expect(safeMultiply(2.5, 4, 1)).toBe(10);
+      expect(safeMultiply(0.1, 0.2, 4)).toBe(0.02);
+    });
+
+    it("should subtract numbers safely", () => {
+      expect(safeSubtract(10, 3.3333, 2)).toBe(6.67);
+      expect(safeSubtract(-5, -2, 0)).toBe(-3);
+    });
+
+    it("should divide numbers safely", () => {
+      expect(safeDivide(10, 4, 2)).toBe(2.5);
+      expect(safeDivide(1, 3, 3)).toBe(0.333);
+    });
+
+    it("should return 0 for invalid operands", () => {
+      expect(safeAdd(Number.NaN, 1)).toBe(0);
+      expect(safeMultiply(Infinity, 2)).toBe(0);
+      expect(safeSubtract(1, Number.NaN)).toBe(0);
+      expect(safeDivide(1, 0)).toBe(0);
+      expect(safeDivide(Number.NaN, 2)).toBe(0);
+    });
+
+    it("should normalize invalid decimal precision", () => {
+      expect(safeAdd(1.2345, 0, -2)).toBe(1);
+      expect(safeMultiply(1.2345, 1, 101)).toBe(1.2345);
+    });
+  });
+
+  describe("numbersEqual", () => {
+    it("should compare numbers with default decimals", () => {
+      expect(numbersEqual(0.1 + 0.2, 0.3)).toBe(true);
+      expect(numbersEqual(0.123, 0.125)).toBe(false);
+    });
+
+    it("should respect custom precision", () => {
+      expect(numbersEqual(1.2345, 1.2344, 3)).toBe(true);
+      expect(numbersEqual(1.2345, 1.2344, 4)).toBe(false);
+    });
+
+    it("should return false for invalid operands", () => {
+      expect(numbersEqual(NaN, 1)).toBe(false);
+      expect(numbersEqual(1, Infinity)).toBe(false);
+    });
+
+    it("should normalize invalid decimal precision", () => {
+      expect(numbersEqual(1.2345, 1.2349, -1)).toBe(true);
+      expect(numbersEqual(1.234567, 1.234568, 200)).toBe(false);
     });
   });
 

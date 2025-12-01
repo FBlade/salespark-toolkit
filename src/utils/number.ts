@@ -1,9 +1,9 @@
 /******************************************************
  * ##: Clamp Number
  * Restricts a number to be within the min and max bounds
- * @param {Number} n - Number to clamp
- * @param {Number} min - Minimum value
- * @param {Number} max - Maximum value
+ * @param {number} n - Number to clamp
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
  * History:
  * 21-08-2025: Created
  ****************************************************/
@@ -13,8 +13,8 @@ export const clamp = (n: number, min: number, max: number) =>
 /******************************************************
  * ##: Fixed Decimal Rounding
  * Rounds a number to a fixed number of decimals without floating point surprises
- * @param {Number} n - Number to round
- * @param {Number} decimals - Number of decimal places
+ * @param {number} n - Number to round
+ * @param {number} decimals - Number of decimal places
  * History:
  * 21-08-2025: Created
  ****************************************************/
@@ -30,7 +30,7 @@ export function round(n: number, decimals = 0) {
  * Notes:
  * Examples: safeParseInt("42") -> 42, safeParseInt("abc", 10) -> 10, safeParseInt(undefined) -> 0, safeParseInt(3.9) -> 3
  * @param {unknown} value - Value to convert
- * @param {Number} defaultValue - Default value if parsing fails
+ * @param {number} defaultValue - Default value if parsing fails
  * History:
  * 21-08-2025: Created
  * 29-10-2025: Renamed from toInteger to safeParseInt
@@ -41,6 +41,155 @@ export function safeParseInt(value: unknown, defaultValue = 0): number {
     return isNaN(safeValue) ? defaultValue : safeValue;
   } catch {
     return defaultValue;
+  }
+}
+
+/******************************************************
+ * ##: Decimal Precision Normalization
+ * Ensures decimal precision values are finite, clamped to a safe integer range (0-100).
+ *
+ * Notes:
+ * Used internally by safe arithmetic helpers to avoid invalid toFixed ranges.
+ * @param {number} decimals - Requested decimal precision
+ * @returns {number} Clamped integer precision between 0 and 100
+ * History:
+ * 01-12-2025: Created
+ ****************************************************/
+function normalizeDecimals(decimals: number): number {
+  if (!Number.isFinite(decimals)) return 0;
+  const int = Math.floor(decimals);
+  if (int < 0) return 0;
+  if (int > 100) return 100;
+  return int;
+}
+
+/******************************************************
+ * ##: Operand Sanitization
+ * Confirms operands are finite numbers before performing arithmetic.
+ *
+ * Notes:
+ * Returns false if any operand is NaN or infinite.
+ * @param {number[]} values - Numbers to validate
+ * @returns {boolean} True when all operands are finite
+ * History:
+ * 01-12-2025: Created
+ ****************************************************/
+function sanitizeOperands(...values: number[]): boolean {
+  return values.every((value) => Number.isFinite(value));
+}
+
+/******************************************************
+ * ##: Safe Addition
+ * Adds two numbers with precision normalization and operand validation.
+ *
+ * Notes:
+ * Returns 0 when operands are invalid or if toFixed throws.
+ * Examples: safeAdd(0.1, 0.2, 2) -> 0.3, safeAdd(NaN, 5) -> 0
+ * @param {number} a - Augend
+ * @param {number} b - Addend
+ * @param {number} decimals - Decimal places for rounding (default 2)
+ * History:
+ * 01-12-2025: Created
+ ****************************************************/
+export function safeAdd(a: number, b: number, decimals = 2): number {
+  try {
+    if (!sanitizeOperands(a, b)) return 0;
+    const precision = normalizeDecimals(decimals);
+    return Number((a + b).toFixed(precision));
+  } catch {
+    return 0;
+  }
+}
+
+/******************************************************
+ * ##: Safe Multiplication
+ * Multiplies two numbers with precision normalization and operand validation.
+ *
+ * Notes:
+ * Returns 0 when operands are invalid or on computation errors.
+ * Examples: safeMultiply(0.1, 0.2, 4) -> 0.02, safeMultiply(Infinity, 2) -> 0
+ * @param {number} a - First factor
+ * @param {number} b - Second factor
+ * @param {number} decimals - Decimal places for rounding (default 2)
+ * History:
+ * 01-12-2025: Created
+ ****************************************************/
+export function safeMultiply(a: number, b: number, decimals = 2): number {
+  try {
+    if (!sanitizeOperands(a, b)) return 0;
+    const precision = normalizeDecimals(decimals);
+    return Number((a * b).toFixed(precision));
+  } catch {
+    return 0;
+  }
+}
+
+/******************************************************
+ * ##: Safe Subtraction
+ * Subtracts two numbers with precision normalization and operand validation.
+ *
+ * Notes:
+ * Returns 0 when operands are invalid or on computation errors.
+ * Examples: safeSubtract(10, 3.3333, 2) -> 6.67, safeSubtract(5, NaN) -> 0
+ * @param {number} a - Minuend
+ * @param {number} b - Subtrahend
+ * @param {number} decimals - Decimal places for rounding (default 2)
+ * History:
+ * 01-12-2025: Created
+ ****************************************************/
+export function safeSubtract(a: number, b: number, decimals = 2): number {
+  try {
+    if (!sanitizeOperands(a, b)) return 0;
+    const precision = normalizeDecimals(decimals);
+    return Number((a - b).toFixed(precision));
+  } catch {
+    return 0;
+  }
+}
+
+/******************************************************
+ * ##: Safe Division
+ * Divides two numbers with precision normalization, operand validation, and zero checks.
+ *
+ * Notes:
+ * Returns 0 when operands are invalid or divisor is zero.
+ * Examples: safeDivide(1, 3, 3) -> 0.333, safeDivide(10, 0) -> 0
+ * @param {number} a - Dividend
+ * @param {number} b - Divisor
+ * @param {number} decimals - Decimal places for rounding (default 2)
+ * History:
+ * 01-12-2025: Created
+ ****************************************************/
+export function safeDivide(a: number, b: number, decimals = 2): number {
+  try {
+    if (!sanitizeOperands(a, b) || b === 0) return 0;
+    const precision = normalizeDecimals(decimals);
+    return Number((a / b).toFixed(precision));
+  } catch {
+    return 0;
+  }
+}
+
+/******************************************************
+ * ##: Safe Number Comparison
+ * Compares two numbers using fixed decimal precision with operand validation.
+ *
+ * Notes:
+ * Returns false when operands are invalid.
+ * Examples: numbersEqual(0.1 + 0.2, 0.3) -> true, numbersEqual(NaN, 1) -> false
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @param {number} decimals - Decimal places for comparison (default 2)
+ * History:
+ * 01-12-2025: Created
+ ****************************************************/
+export function numbersEqual(a: number, b: number, decimals = 2): boolean {
+  try {
+    if (!sanitizeOperands(a, b)) return false;
+    const precision = normalizeDecimals(decimals);
+    return a.toFixed(precision) === b.toFixed(precision);
+  } catch {
+    return false;
   }
 }
 
@@ -59,8 +208,9 @@ export const toInteger = safeParseInt;
  *
  * Notes:
  * Handles commas as decimal/thousands separators. Returns 0 for null/undefined/empty string or invalid parsing.
- * Examples: safeParseFloat("123.45") -> 123.45, safeParseFloat("123,45") -> 123.45, safeParseFloat("1,234.56") -> 1234.56, safeParseFloat("abc", 2) -> 0, safeParseFloat(42) -> 42 * @param {unknown} value - Value to convert
- * @param {Number} decimals - Number of decimal places
+ * Examples: safeParseFloat("123.45") -> 123.45, safeParseFloat("123,45") -> 123.45, safeParseFloat("1,234.56") -> 1234.56, safeParseFloat("abc", 2) -> 0, safeParseFloat(42) -> 42
+ * @param {unknown} value - Value to convert
+ * @param {number} decimals - Number of decimal places
  * History:
  * 21-08-2025: Created
  * 29-10-2025: Renamed from toNumber to safeParseFloat
@@ -114,7 +264,8 @@ export function safeParseFloat(value: unknown, decimals = 6): number {
     const num = parseFloat(normalized);
     if (!isFinite(num)) return 0;
 
-    return Number(num.toFixed(decimals));
+    const precision = normalizeDecimals(decimals);
+    return Number(num.toFixed(precision));
 
     // Error handling
   } catch {
@@ -142,7 +293,7 @@ export const parseToNumber = safeParseFloat;
  *
  * Notes:
  * Falls back to Math.random() if crypto is unavailable (not cryptographically secure)
- * @param {Number} max - Upper bound (exclusive)
+ * @param {number} max - Upper bound (exclusive)
  * History:
  * 21-08-2025: Created
  ****************************************************/
@@ -178,8 +329,8 @@ function secureRandomIndex(max: number): number {
  *
  * Notes:
  * Options: length (default 6), charset (default "0123456789"), noLeadingZero (if true, first char not "0"). Returns a string to preserve leading zeros. Uses Web Crypto when possible; otherwise falls back to Math.random().
- * @param {Number} length - Number of digits
- * @param {Object} options - Options: charset, noLeadingZero
+ * @param {number} length - Number of digits
+ * @param {object} options - Options: charset, noLeadingZero
  * History:
  * 21-08-2025: Created
  ****************************************************/
@@ -223,7 +374,7 @@ export const otp = randomDigits;
  * Intelligently handles European number formats (1.234,56) and US formats (1,234.56).
  * Converts strings to numbers and applies decimal formatting.
  * @param {number|string|null|undefined} value Number value to format
- * @param {number} decimals Number of decimal places (default: 2)
+ * @param {number} decimals - Number of decimal places (default: 2)
  * @returns {string} Formatted number string with specified decimals
  * History:
  * 16-10-2025: Created
