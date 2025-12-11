@@ -74,21 +74,34 @@ export function objectToString(obj: unknown): string {
  * - Falsy values like 0, false, "" are kept.
  * - Non-plain objects (e.g., Date, Map) are treated as generic objects via Object.entries.
  * - Prunes empty objects/arrays produced by the cleaning step.
+ * - Optionally removes empty strings ("") when configured.
  * @param {unknown} obj - Object or array to clean
+ * @param {boolean} removeEmptyString - When true, also removes empty strings
  * History:
  * 21-08-2025: Created
+ * 11-12-2025: Added optional removeEmptyString flag
  ****************************************************/
-type Removable = null | undefined | "null" | "undefined";
+type Removable = null | undefined | "null" | "undefined" | "";
 
-const isRemovable = (v: unknown): v is Removable =>
-  v === null || v === undefined || v === "null" || v === "undefined";
+const isRemovable = (
+  v: unknown,
+  removeEmptyString?: boolean
+): v is Removable =>
+  v === null ||
+  v === undefined ||
+  v === "null" ||
+  v === "undefined" ||
+  (removeEmptyString && v === "");
 
-export function cleanObject<T = unknown>(obj: T): any {
+export function cleanObject<T = unknown>(
+  obj: T,
+  removeEmptyString = false
+): any {
   // Handle arrays: map + clean each item, then filter removable values
   if (Array.isArray(obj)) {
     const cleanedArray = obj
-      .map((item) => cleanObject(item))
-      .filter((item) => !isRemovable(item));
+      .map((item) => cleanObject(item, removeEmptyString))
+      .filter((item) => !isRemovable(item, removeEmptyString));
     return cleanedArray;
   }
 
@@ -98,13 +111,13 @@ export function cleanObject<T = unknown>(obj: T): any {
 
     for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
       // Skip removable raw values fast
-      if (isRemovable(value)) continue;
+      if (isRemovable(value, removeEmptyString)) continue;
 
       // Recursively clean nested values
-      const nested = cleanObject(value);
+      const nested = cleanObject(value, removeEmptyString);
 
       // After cleaning, skip if still removable
-      if (isRemovable(nested)) continue;
+      if (isRemovable(nested, removeEmptyString)) continue;
 
       // Prune empty objects/arrays (to mirror original behavior)
       const isObj = typeof nested === "object" && nested !== null;

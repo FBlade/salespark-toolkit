@@ -42,6 +42,25 @@ describe('cleanObject', () => {
     const obj = { a: 0, b: false, c: "" };
     expect(cleanObject(obj)).toEqual({ a: 0, b: false, c: "" });
   });
+  it('should remove empty strings when configured', () => {
+    const obj = {
+      a: '',
+      b: ' ',
+      c: 'text',
+      nested: {
+        d: '',
+        e: 'x',
+      },
+      arr: ['', 'y', null],
+    };
+
+    expect(cleanObject(obj, true)).toEqual({
+      b: ' ',
+      c: 'text',
+      nested: { e: 'x' },
+      arr: ['y'],
+    });
+  });
   it('should handle primitives and return as-is', () => {
     expect(cleanObject(123)).toBe(123);
     expect(cleanObject("abc")).toBe("abc");

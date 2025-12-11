@@ -267,16 +267,31 @@ objectToString({ name: "John", age: 30 });
 // Result: "name=John_age=30"
 ```
 
-**`cleanObject<T>(obj: T): any`** — Deep-cleans an object by removing null/undefined values.
+**`cleanObject<T>(obj: T, removeEmptyString?: boolean): any`** — Deep-cleans an object by removing null/undefined-like values, with optional empty-string removal.
 
 ```javascript
+// Default behaviour: keep empty strings
 cleanObject({
   name: "John",
   age: null,
   city: undefined,
+  note: "",
   data: { valid: true, invalid: null },
 });
-// Result: {name: 'John', data: {valid: true}}
+// Result: {name: 'John', note: '', data: {valid: true}}
+
+// With removeEmptyString enabled
+cleanObject(
+  {
+    name: "John",
+    age: null,
+    city: undefined,
+    note: "",
+    tags: ["", "ok"],
+  },
+  true
+);
+// Result: {name: 'John', tags: ['ok']}
 ```
 
 ### 🔤 String Utilities
@@ -856,5 +871,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 9_  
-_Last update: 01-12-2025_
+_Document version: 10_  
+_Last update: 11-12-2025_
