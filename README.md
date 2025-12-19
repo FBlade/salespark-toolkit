@@ -26,7 +26,7 @@ npm i @salespark/toolkit
 
 - **Array utilities**: chunk, uniqBy, deep equality, flatten, groupBy, etc.
 - **Object utilities**: pick, omit, clean objects, deep merge, etc.
-- **String utilities**: slugify, template fill, deburr, sanitize, etc.
+- **String utilities**: slugify, template fill, deburr, sanitize, capitalize words/sentences.
 - **Number utilities**: clamp, round, safe arithmetic/comparisons, safe parse (locale-aware), random digits, etc.
 - **Function utilities**: debounce, throttle, formatCurrency, parseName, currency conversions, etc.
 - **Boolean utilities**: safe boolean conversion with common representations
@@ -315,6 +315,30 @@ fill("Hello {name}, you are {age} years old!", { name: "John", age: 30 });
 ```javascript
 deburr("café résumé naïve");
 // Result: "cafe resume naive"
+```
+
+**`capitalizeFirst(input: string, options?: { lowerRest?: boolean; locale?: string | string[] }): string`** — Capitalizes only the first character; optionally lowercases the rest.
+
+```javascript
+capitalizeFirst("hELLO world");
+// Result: "Hello world"
+```
+
+**`capitalizeWords(input: string, options?: { lowerRest?: boolean; locale?: string | string[]; treatHyphenAsSeparator?: boolean }): string`** — Capitalizes each word; can treat hyphen as separator.
+
+```javascript
+capitalizeWords("e-mail marketing");
+// Result: "E-mail Marketing"
+
+capitalizeWords("e-mail marketing", { treatHyphenAsSeparator: true });
+// Result: "E-Mail Marketing"
+```
+
+**`sentenceCase(input: string, options?: { lowerRest?: boolean; locale?: string | string[] }): string`** — Capitalizes the start of each sentence (. ! ?); optionally lowercases the rest.
+
+```javascript
+sentenceCase("hello world. this is fine!");
+// Result: "Hello world. This is fine!"
 ```
 
 **`sanitize(input: unknown, maxLength?: number): string`** — Sanitizes input by removing dangerous content.
@@ -871,5 +895,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 10_  
-_Last update: 11-12-2025_
+_Document version: 11_  
+_Last update: 19-12-2025_

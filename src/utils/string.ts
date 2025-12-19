@@ -1,3 +1,29 @@
+type Locale = string | string[] | undefined;
+
+export type CapitalizeFirstOptions = {
+  lowerRest?: boolean;
+  locale?: Locale;
+};
+
+export type CapitalizeWordsOptions = {
+  lowerRest?: boolean;
+  locale?: Locale;
+  treatHyphenAsSeparator?: boolean;
+};
+
+export type SentenceCaseOptions = {
+  lowerRest?: boolean;
+  locale?: Locale;
+};
+
+function upper(value: string, locale?: Locale) {
+  return locale ? value.toLocaleUpperCase(locale) : value.toUpperCase();
+}
+
+function lower(value: string, locale?: Locale) {
+  return locale ? value.toLocaleLowerCase(locale) : value.toLowerCase();
+}
+
 /******************************************************
  * ##: Slugify String
  * Converts a string to a URL-friendly slug (basic ASCII, keeps numbers and dashes)
@@ -45,6 +71,84 @@ export function deburr(str: string): string {
   } catch {
     return str;
   }
+}
+
+/******************************************************
+ * ##: Capitalize First Letter
+ * Capitalizes only the first character of a string; optionally lowercases the rest
+ * @param {String} input - Input string
+ * @param {Object} options - { lowerRest = true, locale }
+ * History:
+ * 19-12-2025: Created
+ ****************************************************/
+export function capitalizeFirst(
+  input: unknown,
+  options?: CapitalizeFirstOptions
+): string {
+  if (typeof input !== "string" || input.length === 0) return "";
+
+  const { lowerRest = true, locale } = options ?? {};
+  const first = upper(input[0], locale);
+  const rest = lowerRest ? lower(input.slice(1), locale) : input.slice(1);
+
+  return first + rest;
+}
+
+/******************************************************
+ * ##: Capitalize Words
+ * Capitalizes each word in a string with options for hyphens and locale
+ * @param {String} input - Input string
+ * @param {Object} options - { lowerRest = true, locale, treatHyphenAsSeparator = false }
+ * History:
+ * 19-12-2025: Created
+ ****************************************************/
+export function capitalizeWords(
+  input: unknown,
+  options?: CapitalizeWordsOptions
+): string {
+  if (typeof input !== "string" || input.length === 0) return "";
+
+  const {
+    lowerRest = true,
+    locale,
+    treatHyphenAsSeparator = false,
+  } = options ?? {};
+
+  const wordPattern = treatHyphenAsSeparator
+    ? /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu
+    : /[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu;
+
+  return input.replace(wordPattern, (word) => {
+    const first = upper(word[0], locale);
+    const rest = lowerRest ? lower(word.slice(1), locale) : word.slice(1);
+
+    return first + rest;
+  });
+}
+
+/******************************************************
+ * ##: Sentence Case
+ * Capitalizes the first letter of each sentence (. ! ?) with optional lowercasing of the rest
+ * @param {String} input - Input string
+ * @param {Object} options - { lowerRest = true, locale }
+ * History:
+ * 19-12-2025: Created
+ ****************************************************/
+export function sentenceCase(
+  input: unknown,
+  options?: SentenceCaseOptions
+): string {
+  if (typeof input !== "string" || input.length === 0) return "";
+
+  const { lowerRest = true, locale } = options ?? {};
+  const base = lowerRest ? lower(input, locale) : input;
+  const sentencePattern = /(^\s*[\p{L}])|([.!?]\s*[\p{L}])/gu;
+
+  return base.replace(sentencePattern, (match) => {
+    const lastChar = match[match.length - 1];
+    const upperChar = upper(lastChar, locale);
+    return match.slice(0, -1) + upperChar;
+  });
 }
 
 /* ======================================================================================
