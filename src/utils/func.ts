@@ -2,24 +2,25 @@
  * ##: Safe JSON Parse
  * Safely parses a JSON string or returns the object if already parsed. Falls back to default value on failure.
  * @param {unknown} input - The value to parse (string or object)
- * @param {T} defaultValue - The default value to return if parsing fails or input is invalid
+ * @param {T} [defaultValue] - The default value to return if parsing fails or input is invalid, defaults to {}
  * @returns {T} The parsed object or default value
  * History:
  * 21-12-2025: Created
- ****************************************************/
-export function safeJSONParse<T>(input: unknown, defaultValue: T): T {
-  if (typeof input === 'object' && input !== null) {
+ ******************************************************/
+export function safeJSONParse<T>(input: unknown, defaultValue?: T): T {
+  const def = isNilOrEmpty(defaultValue) === false ? defaultValue : ({} as T);
+  if (typeof input === "object" && input !== null) {
     return input as T;
   }
-  if (typeof input === 'string') {
+  if (typeof input === "string") {
     try {
       const parsed = JSON.parse(input);
       return parsed as T;
     } catch {
-      return defaultValue;
+      return def;
     }
   }
-  return defaultValue;
+  return def;
 }
 
 /******************************************************

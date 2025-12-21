@@ -774,13 +774,13 @@ describe("Defensive catch coverage (func.ts)", () => {
 describe("safeJSONParse", () => {
   it("should return the object if input is already an object", () => {
     const obj = { key: "value" };
-    const result = safeJSONParse(obj, "default");
+    const result = safeJSONParse(obj);
     expect(result).toBe(obj);
   });
 
   it("should parse valid JSON string", () => {
     const jsonString = '{"key": "value"}';
-    const result = safeJSONParse(jsonString, "default");
+    const result = safeJSONParse(jsonString);
     expect(result).toEqual({ key: "value" });
   });
 
@@ -792,20 +792,25 @@ describe("safeJSONParse", () => {
   });
 
   it("should return default value for non-string non-object input", () => {
-    const defaultValue = "default";
+    const defaultValue = { default: "value" };
     const result = safeJSONParse(123, defaultValue);
     expect(result).toBe(defaultValue);
   });
 
   it("should handle null input as object (but null is not object)", () => {
-    const defaultValue = "default";
+    const defaultValue = { default: "value" };
     const result = safeJSONParse(null, defaultValue);
     expect(result).toBe(defaultValue);
   });
 
   it("should handle undefined input", () => {
-    const defaultValue = "default";
+    const defaultValue = { default: "value" };
     const result = safeJSONParse(undefined, defaultValue);
     expect(result).toBe(defaultValue);
+  });
+
+  it("should return empty object when defaultValue is not provided and parsing fails", () => {
+    const result = safeJSONParse("invalid json");
+    expect(result).toEqual({});
   });
 });
