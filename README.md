@@ -28,7 +28,7 @@ npm i @salespark/toolkit
 - **Object utilities**: pick, omit, clean objects, deep merge, etc.
 - **String utilities**: slugify, template fill, deburr, sanitize, capitalize words/sentences.
 - **Number utilities**: clamp, round, safe arithmetic/comparisons, safe parse (locale-aware), random digits, etc.
-- **Function utilities**: debounce, throttle, formatCurrency, parseName, currency conversions, etc.
+- **Function utilities**: debounce, throttle, safeJSONParse, formatCurrency, parseName, currency conversions, etc.
 - **Boolean utilities**: safe boolean conversion with common representations
 - **Validation utilities**: IBAN validator (ISO 13616), Portuguese tax ID validator
 - **Security utilities**: Markdown XSS protection, content sanitization, risk assessment
@@ -607,6 +607,19 @@ addThousandsSpace(1234567);
 // Result: "1 234 567"
 ```
 
+**`safeJSONParse<T>(input: unknown, defaultValue: T): T`** — Safely parses a JSON string or returns the object if already parsed. Falls back to default value on failure.
+
+```javascript
+safeJSONParse('{"key": "value"}', {});
+// Result: { key: "value" }
+
+safeJSONParse({ already: "object" }, {});
+// Result: { already: "object" }
+
+safeJSONParse("{invalid}", { fallback: true });
+// Result: { fallback: true }
+```
+
 **`formatCurrency(value: number | string | null | undefined, withoutCurrencySymbol?: boolean, currency?: string, locale?: string): string`** — Formats currency values with configurable currency and locale. Uses modern Intl.NumberFormat with automatic thousands separators, proper decimal handling, and graceful fallback for errors.
 
 ```javascript
@@ -895,5 +908,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 11_  
-_Last update: 19-12-2025_
+_Document version: 12_  
+_Last update: 21-12-2025_

@@ -20,6 +20,7 @@ import {
   parseName,
   symbolToCurrency,
   currencyToSymbol,
+  safeJSONParse,
   // deprecated alias
   isNullUndefinedOrEmptyEnforced,
 } from "../src/utils/func";
@@ -767,5 +768,44 @@ describe("Defensive catch coverage (func.ts)", () => {
       },
     });
     expect(isNilOrZeroLength(obj)).toBe(true);
+  });
+});
+
+describe("safeJSONParse", () => {
+  it("should return the object if input is already an object", () => {
+    const obj = { key: "value" };
+    const result = safeJSONParse(obj, "default");
+    expect(result).toBe(obj);
+  });
+
+  it("should parse valid JSON string", () => {
+    const jsonString = '{"key": "value"}';
+    const result = safeJSONParse(jsonString, "default");
+    expect(result).toEqual({ key: "value" });
+  });
+
+  it("should return default value for invalid JSON string", () => {
+    const invalidJson = "{invalid}";
+    const defaultValue = { fallback: true };
+    const result = safeJSONParse(invalidJson, defaultValue);
+    expect(result).toBe(defaultValue);
+  });
+
+  it("should return default value for non-string non-object input", () => {
+    const defaultValue = "default";
+    const result = safeJSONParse(123, defaultValue);
+    expect(result).toBe(defaultValue);
+  });
+
+  it("should handle null input as object (but null is not object)", () => {
+    const defaultValue = "default";
+    const result = safeJSONParse(null, defaultValue);
+    expect(result).toBe(defaultValue);
+  });
+
+  it("should handle undefined input", () => {
+    const defaultValue = "default";
+    const result = safeJSONParse(undefined, defaultValue);
+    expect(result).toBe(defaultValue);
   });
 });
