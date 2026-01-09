@@ -210,7 +210,7 @@ export const toInteger = safeParseInt;
  * Handles commas as decimal/thousands separators. Returns 0 for null/undefined/empty string or invalid parsing.
  * Examples: safeParseFloat("123.45") -> 123.45, safeParseFloat("123,45") -> 123.45, safeParseFloat("1,234.56") -> 1234.56, safeParseFloat("abc", 2) -> 0, safeParseFloat(42) -> 42
  * @param {unknown} value - Value to convert
- * @param {number} decimals - Number of decimal places
+ * @param {number} decimals - Number of decimal places (default 6)
  * History:
  * 21-08-2025: Created
  * 29-10-2025: Renamed from toNumber to safeParseFloat

@@ -29,6 +29,7 @@ npm i @salespark/toolkit
 - **String utilities**: slugify, template fill, deburr, sanitize, capitalize words/sentences.
 - **Number utilities**: clamp, round, safe arithmetic/comparisons, safe parse (locale-aware), random digits, etc.
 - **Function utilities**: debounce, throttle, safeJSONParse, formatCurrency, parseName, currency conversions, etc.
+- **Defer utilities**: post-return microtask scheduling, non-critical timers, after-response hooks.
 - **Boolean utilities**: safe boolean conversion with common representations
 - **Validation utilities**: IBAN validator (ISO 13616), Portuguese tax ID validator
 - **Security utilities**: Markdown XSS protection, content sanitization, risk assessment
@@ -704,6 +705,43 @@ currencyToSymbol("UNKNOWN");
 // Result: "€" (fallback)
 ```
 
+### 🕒 Defer Utilities
+
+**`deferPostReturn(fn: () => void | Promise<void>): void`** — Runs a function right after the current call stack completes (microtask), without blocking the caller.
+
+```javascript
+const order = [];
+order.push("a");
+deferPostReturn(() => order.push("b"));
+order.push("c");
+// After the current stack finishes (microtask): order = ["a", "c", "b"]
+```
+
+**`deferNonCritical(fn: () => void | Promise<void>): void`** — Schedules a function as late as possible (low priority) for non-critical work.
+
+```javascript
+deferNonCritical(() => {
+  // logs, metrics, cleanup — runs later without competing with main work
+});
+```
+
+**`deferAfterResponse(res: { once: (event: "finish" | "close", listener: (...args: any[]) => void) => void; writableEnded?: boolean }, fn: () => void | Promise<void>): void`** — Runs a function after the HTTP response is finished (sent to the client), scheduled soon (microtask).
+
+```javascript
+// Example with a response-like object
+deferAfterResponse(res, () => {
+  // post-response tasks — lightweight, run shortly after sending
+});
+```
+
+**`deferAfterResponseNonCritical(res: { once: (event: "finish" | "close", listener: (...args: any[]) => void) => void; writableEnded?: boolean }, fn: () => void | Promise<void>): void`** — Runs a function after the HTTP response is finished, scheduled as low priority (as late as possible).
+
+```javascript
+deferAfterResponseNonCritical(res, () => {
+  // non-critical post-response work — scheduled with low priority
+});
+```
+
 ### 🔒 Security Utilities
 
 **`checkMarkdownSecurity(text: string | null | undefined): SecurityCheckResult`** — Comprehensive markdown security validation with XSS protection, threat detection, and automatic sanitization.
@@ -908,5 +946,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 12_  
-_Last update: 21-12-2025_
+_Document version: 13_  
+_Last update: 09-01-2026_
