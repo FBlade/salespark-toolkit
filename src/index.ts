@@ -7,6 +7,7 @@ export * from "./utils/func";
 export * from "./utils/validations";
 export * from "./utils/iban";
 export * from "./utils/security";
+export * from "./utils/defer";
 
 /** Environment helpers (runtime-agnostic checks) */
 export const isBrowser =
