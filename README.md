@@ -584,14 +584,17 @@ isNilOrNaN("abc");
 // Result: true (coerced to NaN)
 ```
 
-**`formatBytes(bytes: number, si?: boolean, dp?: number): string`** — Formats bytes as human-readable text.
+**`formatBytes(bytes: number, si?: boolean, dp?: number, noSpace?: boolean): string`** — Formats bytes as human-readable text.
 
 ```javascript
+formatBytes(999, true);
+// Result: "999 Bytes"
+
 formatBytes(1024);
 // Result: "1.0 KiB"
 
-formatBytes(1000, true);
-// Result: "1.0 kB"
+formatBytes(1000, true, 1, true);
+// Result: "1.0kB"
 ```
 
 **`stringSimilarity(s1: string, s2: string): number`** — Returns the similarity between two strings (0..1).

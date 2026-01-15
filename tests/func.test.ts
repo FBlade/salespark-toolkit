@@ -126,13 +126,13 @@ describe("isNilOrNaN", () => {
 
 describe("formatBytes", () => {
   it("should format bytes in SI units", () => {
-    expect(formatBytes(999, true)).toBe("999 B");
+    expect(formatBytes(999, true)).toBe("999 Bytes");
     expect(formatBytes(1000, true)).toBe("1.0 kB");
     expect(formatBytes(1500, true)).toBe("1.5 kB");
     expect(formatBytes(1000000, true)).toBe("1.0 MB");
   });
   it("should format bytes in IEC units", () => {
-    expect(formatBytes(1023)).toBe("1023 B");
+    expect(formatBytes(1023)).toBe("1023 Bytes");
     expect(formatBytes(1024)).toBe("1.0 KiB");
     expect(formatBytes(1048576)).toBe("1.0 MiB");
   });
@@ -143,6 +143,10 @@ describe("formatBytes", () => {
   it("should handle decimal places", () => {
     expect(formatBytes(1536, false, 2)).toBe("1.50 KiB");
     expect(formatBytes(1536, true, 3)).toBe("1.536 kB");
+  });
+  it("should omit spaces when noSpace is true", () => {
+    expect(formatBytes(1536, false, 2, true)).toBe("1.50KiB");
+    expect(formatBytes(1500, true, 1, true)).toBe("1.5kB");
   });
   it("should return NaN for invalid input", () => {
     expect(formatBytes(NaN)).toBe("NaN");

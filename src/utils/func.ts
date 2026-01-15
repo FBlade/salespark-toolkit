@@ -267,13 +267,16 @@ export const isNullOrUndefinedOrNaN = isNilOrNaN;
  * @param {Number} bytes - Number of bytes to format
  * @param {Boolean} si - True for metric (SI, base 1000), false for binary (IEC, base 1024)
  * @param {Number} dp - Decimal places
+ * @param {Boolean} noSpace - If true, omits space between number and unit
  * History:
  * 21-08-2025: Created
+ * 15-01-2026: Returns "Bytes" instead of "B" for values < threshold for clarity and added noSpace option
  ****************************************************/
 export const formatBytes = (
   bytes: number,
   si: boolean = false,
-  dp: number = 1
+  dp: number = 1,
+  noSpace: boolean = false
 ): string => {
   // Guard invalid numbers
   if (!Number.isFinite(bytes)) return "NaN";
@@ -282,7 +285,7 @@ export const formatBytes = (
   const abs = Math.abs(bytes);
 
   // Bytes (no unit scaling)
-  if (abs < thresh) return `${bytes} B`;
+  if (abs < thresh) return `${bytes} Bytes`;
 
   const units = si
     ? ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
@@ -301,7 +304,7 @@ export const formatBytes = (
     u < units.length - 1
   );
 
-  return `${value.toFixed(dp)} ${units[u]}`;
+  return `${value.toFixed(dp)}${noSpace ? "" : " "}${units[u]}`;
 };
 
 /* ======================================================================================
