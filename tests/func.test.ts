@@ -13,6 +13,7 @@ import {
   isNilOrNaN,
   formatBytes,
   formatCurrency,
+  formatCurrencyPro,
   addThousandsSpace,
   stringSimilarity,
   delay,
@@ -172,7 +173,7 @@ describe("stringSimilarity", () => {
   });
   it("should be symmetric", () => {
     expect(stringSimilarity("abc", "abcd")).toBeCloseTo(
-      stringSimilarity("abcd", "abc")
+      stringSimilarity("abcd", "abc"),
     );
   });
 });
@@ -328,6 +329,42 @@ describe("formatCurrency", () => {
     const default2 = formatCurrency(999.9, true);
     const explicit2 = formatCurrency(999.9, true, "EUR", "pt-PT");
     expect(default2).toBe(explicit2);
+  });
+});
+
+describe("formatCurrencyPro", () => {
+  it("should match formatCurrency defaults", () => {
+    const base = formatCurrency(1234.56);
+    const pro = formatCurrencyPro(1234.56);
+    expect(pro).toBe(base);
+  });
+
+  it("should accept options for currency and locale", () => {
+    const result = formatCurrencyPro(1234.56, {
+      currency: "USD",
+      locale: "en-US",
+    });
+    expect(result).toContain("$1,234.56");
+  });
+
+  it("should support withoutCurrencySymbol option", () => {
+    const result = formatCurrencyPro(999.9, { withoutCurrencySymbol: true });
+    expect(result).toBe("999,90");
+  });
+
+  it("should redact digits when enabled", () => {
+    const result = formatCurrencyPro(1234.56, { redact: true });
+    expect(result).not.toMatch(/\d/);
+    expect(result).toContain("€");
+  });
+
+  it("should support custom redaction character", () => {
+    const result = formatCurrencyPro(1234.56, {
+      redact: true,
+      redactChar: "•",
+    });
+    expect(result).not.toMatch(/\d/);
+    expect(result).toContain("•");
   });
 });
 

@@ -32,7 +32,7 @@ npm i @salespark/toolkit
 - **Defer utilities**: post-return microtask scheduling, non-critical timers, after-response hooks.
 - **Boolean utilities**: safe boolean conversion with common representations
 - **Validation utilities**: IBAN validator (ISO 13616), Portuguese tax ID validator
-- **Security utilities**: Markdown XSS protection, content sanitization, risk assessment
+- **Security utilities**: Markdown XSS protection, content sanitization, risk assessment, obfuscation helpers
 - **Environment detection**: `isBrowser`, `isNode` runtime checks
 
 ---
@@ -835,6 +835,30 @@ assessSecurityRisks(risks);
 assessSecurityRisks([]);
 // Result: { score: 0, level: "safe", recommendations: ["Content appears safe to use"] }
 ```
+
+**`scrambleString(value: string, secret: string): string`** — Scrambles a string using a repeating secret (XOR) and Base64. Reversible obfuscation only (not crypto).
+
+```javascript
+const scrambled = scrambleString("Hello", "secret");
+// Result: "..." (base64)
+
+const original = descrambleString(scrambled, "secret");
+// Result: "Hello"
+```
+
+**`descrambleString(value: string, secret: string): string`** — Reverses `scrambleString` using the same secret.
+
+**`encodeObject(input: object, secret: string): string`** — JSON-stringifies an object, Base64-encodes it, and scrambles the result (obfuscation only).
+
+```javascript
+const encoded = encodeObject({ id: 1, name: "Ana" }, "secret");
+// Result: "..." (base64)
+
+const decoded = decodeObject(encoded, "secret");
+// Result: { id: 1, name: "Ana" }
+```
+
+**`decodeObject(encoded: string, secret: string): object`** — Reverses `encodeObject` using the same secret.
 
 ### ✅ Validation Utilities
 
