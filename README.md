@@ -135,7 +135,7 @@ uniqBy(
     { id: 2, name: "Jane" },
     { id: 1, name: "John" },
   ],
-  (x) => x.id
+  (x) => x.id,
 );
 // Result: [{id: 1, name: 'John'}, {id: 2, name: 'Jane'}]
 ```
@@ -177,7 +177,7 @@ groupBy(
     { type: "fruit", name: "banana" },
     { type: "veggie", name: "carrot" },
   ],
-  "type"
+  "type",
 );
 // Result: {fruit: [{type: 'fruit', name: 'apple'}, {type: 'fruit', name: 'banana'}], veggie: [{type: 'veggie', name: 'carrot'}]}
 ```
@@ -218,7 +218,7 @@ pluck(
     { name: "John", age: 30 },
     { name: "Jane", age: 25 },
   ],
-  "name"
+  "name",
 );
 // Result: ['John', 'Jane']
 ```
@@ -290,7 +290,7 @@ cleanObject(
     note: "",
     tags: ["", "ok"],
   },
-  true
+  true,
 );
 // Result: {name: 'John', tags: ['ok']}
 ```
@@ -651,6 +651,26 @@ formatCurrency(null);
 // Result: "0,00 €"
 ```
 
+**`formatCurrencyPro(value: number | string | null | undefined, options?: { withoutCurrencySymbol?: boolean; currency?: string; locale?: string; redact?: boolean; redactChar?: string }): string`** — Same as `formatCurrency`, but uses a single options object and supports redaction.
+
+```javascript
+// Same defaults as formatCurrency
+formatCurrencyPro(1234.56);
+// Result: "1234,56 €"
+
+// Options object
+formatCurrencyPro(1234.56, { currency: "USD", locale: "en-US" });
+// Result: "$1,234.56"
+
+// Redacted output (mask digits)
+formatCurrencyPro(1234.56, { redact: true });
+// Result: "****,** €"
+
+// Custom redaction character
+formatCurrencyPro(1234.56, { redact: true, redactChar: "•" });
+// Result: "••••,•• €"
+```
+
 **`parseName(name: string | null | undefined): {firstName: string, lastName: string}`** — Extracts first and last name from a full name string. Handles single names, empty inputs, and multi-word names intelligently.
 
 ```javascript
@@ -767,7 +787,7 @@ checkMarkdownSecurity('<script>alert("xss")</script>');
 
 // Content with multiple threats
 checkMarkdownSecurity(
-  '<iframe src="evil.com"></iframe><div onclick="bad()">test</div>'
+  '<iframe src="evil.com"></iframe><div onclick="bad()">test</div>',
 );
 // Result: Multiple risks detected, sorted by severity
 ```

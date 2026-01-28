@@ -276,7 +276,7 @@ export const formatBytes = (
   bytes: number,
   si: boolean = false,
   dp: number = 1,
-  noSpace: boolean = false
+  noSpace: boolean = false,
 ): string => {
   // Guard invalid numbers
   if (!Number.isFinite(bytes)) return "NaN";
@@ -304,7 +304,7 @@ export const formatBytes = (
     u < units.length - 1
   );
 
-  return `${value.toFixed(dp)}${noSpace ? "" : " "}${units[u]}`;
+  return `${value.toFixed(dp)}${noSpace === true ? "" : " "}${units[u]}`;
 };
 
 /* ======================================================================================
@@ -474,7 +474,7 @@ export const formatCurrency = (
   value: number | string | null | undefined,
   withoutCurrencySymbol: boolean = false,
   currency: string = "EUR",
-  locale: string = "pt-PT"
+  locale: string = "pt-PT",
 ): string => {
   try {
     // Normalize input value
@@ -504,6 +504,68 @@ export const formatCurrency = (
 };
 
 /******************************************************
+ * ##: Modern Currency Formatter (Options)
+ * Formats currency values using modern Intl.NumberFormat API with a single options object.
+ *
+ * Same behavior as `formatCurrency`, with optional redact masking.
+ * @param {number|string|null|undefined} value Currency value to format
+ * @param {FormatCurrencyProOptions} [options] Formatting options
+ * @returns {string} Formatted currency string (e.g., "1.234,56 €" or "1.234,56")
+ * History:
+ * 28-01-2026: Created
+ ****************************************************/
+export type FormatCurrencyProOptions = {
+  withoutCurrencySymbol?: boolean;
+  currency?: string;
+  locale?: string;
+  redact?: boolean;
+  redactChar?: string;
+};
+
+export const formatCurrencyPro = (
+  value: number | string | null | undefined,
+  options: FormatCurrencyProOptions = {},
+): string => {
+  const resolvedWithoutSymbol = options.withoutCurrencySymbol === true;
+  const resolvedCurrency = options.currency ?? "EUR";
+  const resolvedLocale = options.locale ?? "pt-PT";
+  const redact = options.redact === true;
+  const redactChar = options.redactChar ? options.redactChar : "*";
+
+  try {
+    // Normalize input value
+    const numValue =
+      value === undefined || value === null || value === "" ? 0 : Number(value);
+
+    if (isNaN(numValue) || !isFinite(numValue)) {
+      const fallback = resolvedWithoutSymbol ? "0,00" : "0,00 €";
+      return redact ? fallback.replace(/\d/g, redactChar) : fallback;
+    }
+
+    const intlOptions: Intl.NumberFormatOptions = {
+      style: resolvedWithoutSymbol ? "decimal" : "currency",
+      currency: resolvedCurrency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    };
+
+    const formatted = new Intl.NumberFormat(resolvedLocale, intlOptions).format(
+      numValue,
+    );
+
+    return redact ? formatted.replace(/\d/g, redactChar) : formatted;
+  } catch (error) {
+    /* c8 ignore start */
+    // Fallback to simple formatting if Intl fails
+    const numValue = Number(value) || 0;
+    const formatted = numValue.toFixed(2).replace(".", ",");
+    const fallback = resolvedWithoutSymbol ? formatted : `${formatted} €`;
+    return redact ? fallback.replace(/\d/g, redactChar) : fallback;
+    /* c8 ignore end */
+  }
+};
+
+/******************************************************
  * ##: Parse Name into First and Last Components
  * Extracts first and last name from a full name string.
  *
@@ -515,7 +577,7 @@ export const formatCurrency = (
  * 25-09-2025: Created
  ****************************************************/
 export const parseName = (
-  name: string | null | undefined
+  name: string | null | undefined,
 ): { firstName: string; lastName: string } => {
   try {
     // Handle nil or empty inputs
@@ -691,7 +753,7 @@ export const symbolToCurrency = (symbol: string | null | undefined): string => {
  * 25-09-2025: Created
  ****************************************************/
 export const currencyToSymbol = (
-  currency: string | null | undefined
+  currency: string | null | undefined,
 ): string => {
   try {
     if (!currency || typeof currency !== "string") {
