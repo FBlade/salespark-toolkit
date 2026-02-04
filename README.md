@@ -836,29 +836,29 @@ assessSecurityRisks([]);
 // Result: { score: 0, level: "safe", recommendations: ["Content appears safe to use"] }
 ```
 
-**`scrambleString(value: string, secret: string): string`** — Scrambles a string using a repeating secret (XOR) and Base64. Reversible obfuscation only (not crypto).
+**`scrambleString(value: string, secret: string): SalesParkContract<object>`** — Scrambles a string using a repeating secret (XOR) and Base64. Reversible obfuscation only (not crypto).
 
 ```javascript
 const scrambled = scrambleString("Hello", "secret");
-// Result: "..." (base64)
+// Result: { status: true, data: "..." }
 
-const original = descrambleString(scrambled, "secret");
-// Result: "Hello"
+const original = descrambleString(scrambled.data, "secret");
+// Result: { status: true, data: "Hello" }
 ```
 
-**`descrambleString(value: string, secret: string): string`** — Reverses `scrambleString` using the same secret.
+**`descrambleString(value: string, secret: string): SalesParkContract<object>`** — Reverses `scrambleString` using the same secret.
 
-**`encodeObject(input: object, secret: string): string`** — JSON-stringifies an object, Base64-encodes it, and scrambles the result (obfuscation only).
+**`encodeObject(input: object, secret: string): SalesParkContract<object>`** — JSON-stringifies an object, Base64-encodes it, and scrambles the result (obfuscation only).
 
 ```javascript
 const encoded = encodeObject({ id: 1, name: "Ana" }, "secret");
-// Result: "..." (base64)
+// Result: { status: true, data: "..." }
 
-const decoded = decodeObject(encoded, "secret");
-// Result: { id: 1, name: "Ana" }
+const decoded = decodeObject(encoded.data, "secret");
+// Result: { status: true, data: { id: 1, name: "Ana" } }
 ```
 
-**`decodeObject(encoded: string, secret: string): object`** — Reverses `encodeObject` using the same secret.
+**`decodeObject(encoded: string, secret: string): SalesParkContract<object>`** — Reverses `encodeObject` using the same secret.
 
 ### ✅ Validation Utilities
 

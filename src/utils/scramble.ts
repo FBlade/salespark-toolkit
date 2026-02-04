@@ -107,28 +107,38 @@ const fromBase64 = (value: string): string =>
  * Use only for reversible scrambling, not cryptographic protection.
  * @param {string} value - Plain string to scramble (typically a Base64-encoded JSON payload).
  * @param {string} secret - Secret key used as the repeating XOR mask.
- * @returns {string} - Base64-encoded scrambled output.
+ * @returns {SalesParkContract<object>} - Return a SalesPark Contract object
  * History:
  * 28-01-2026: Created
+ * 04-02-2026: Refactored + return SalesPark Contract object
  ******************************************************************/
-export const scrambleString = (value: string, secret: string): string => {
-  if (typeof value !== "string") {
-    throw new TypeError("Value must be a string");
+export const scrambleString = (
+  value: string,
+  secret: string,
+): SalesParkContract<object> => {
+  try {
+    if (typeof value !== "string") {
+      return { status: false, data: "Value must be a string" };
+    }
+    if (!secret || typeof secret !== "string") {
+      return { status: false, data: "Secret must be a non-empty string" };
+    }
+
+    let result = "";
+
+    for (let i = 0; i < value.length; i++) {
+      const charCode = value.charCodeAt(i) & 0xff;
+      const keyCode = secret.charCodeAt(i % secret.length) & 0xff;
+
+      result += String.fromCharCode(charCode ^ keyCode);
+    }
+
+    return { status: true, data: base64EncodeBinary(result) };
+
+    // Error handling
+  } catch (error) {
+    return { status: false, data: error };
   }
-  if (!secret || typeof secret !== "string") {
-    throw new TypeError("Secret must be a non-empty string");
-  }
-
-  let result = "";
-
-  for (let i = 0; i < value.length; i++) {
-    const charCode = value.charCodeAt(i) & 0xff;
-    const keyCode = secret.charCodeAt(i % secret.length) & 0xff;
-
-    result += String.fromCharCode(charCode ^ keyCode);
-  }
-
-  return base64EncodeBinary(result);
 };
 
 /******************************************************************
@@ -140,29 +150,39 @@ export const scrambleString = (value: string, secret: string): string => {
  * It Base64-decodes, then XORs again to recover the original string.
  * @param {string} value - Base64-encoded scrambled input produced by the scrambler.
  * @param {string} secret - Secret key used as the repeating XOR mask (must match the encoding key).
- * @returns {string} - The original unscrambled string (typically a Base64 JSON payload).
+ * @returns @returns {SalesParkContract<object>} - Return a SalesPark Contract object
  * History:
  * 28-01-2026: Created
+ * 04-02-2026: Refactored + return SalesPark Contract object
  ******************************************************************/
-export const descrambleString = (value: string, secret: string): string => {
-  if (typeof value !== "string") {
-    throw new TypeError("Value must be a string");
+export const descrambleString = (
+  value: string,
+  secret: string,
+): SalesParkContract<object> => {
+  try {
+    if (typeof value !== "string") {
+      return { status: false, data: "Value must be a string" };
+    }
+    if (!secret || typeof secret !== "string") {
+      return { status: false, data: "Secret must be a non-empty string" };
+    }
+
+    const decoded = base64DecodeToBinary(value);
+    let result = "";
+
+    for (let i = 0; i < decoded.length; i++) {
+      const charCode = decoded.charCodeAt(i) & 0xff;
+      const keyCode = secret.charCodeAt(i % secret.length) & 0xff;
+
+      result += String.fromCharCode(charCode ^ keyCode);
+    }
+
+    return { status: true, data: result };
+
+    // Error handling
+  } catch (error) {
+    return { status: false, data: error };
   }
-  if (!secret || typeof secret !== "string") {
-    throw new TypeError("Secret must be a non-empty string");
-  }
-
-  const decoded = base64DecodeToBinary(value);
-  let result = "";
-
-  for (let i = 0; i < decoded.length; i++) {
-    const charCode = decoded.charCodeAt(i) & 0xff;
-    const keyCode = secret.charCodeAt(i % secret.length) & 0xff;
-
-    result += String.fromCharCode(charCode ^ keyCode);
-  }
-
-  return result;
 };
 
 /******************************************************************
@@ -175,21 +195,36 @@ export const descrambleString = (value: string, secret: string): string => {
  * @param {object} input - Any JSON-serializable object to encode (arrays are also accepted as objects).
  * @param {string} secret - Secret key used to scramble the Base64 payload (must be a non-empty string).
  * @returns {string} - Scrambled Base64 string representing the encoded object.
+ * @returns {SalesParkContract<object>} - Return a SalesPark Contract object
  * History:
  * 28-01-2026: Created
+ * 04-02-2026: Refactored + return SalesPark Contract object
  ******************************************************************/
-export const encodeObject = (input: object, secret: string): string => {
-  if (!input || typeof input !== "object") {
-    throw new TypeError("Input must be an object");
-  }
-  if (!secret || typeof secret !== "string") {
-    throw new TypeError("Secret must be a non-empty string");
-  }
+export const encodeObject = (
+  input: object,
+  secret: string,
+): SalesParkContract<object> => {
+  try {
+    if (!input || typeof input !== "object") {
+      return { status: false, data: "Input must be an object" };
+    }
+    if (!secret || typeof secret !== "string") {
+      return { status: false, data: "Secret must be a non-empty string" };
+    }
 
-  const jsonString = JSON.stringify(input);
-  const base64 = toBase64(jsonString);
+    const jsonString = JSON.stringify(input);
+    const base64 = toBase64(jsonString);
 
-  return scrambleString(base64, secret);
+    const scrambledResponse = scrambleString(base64, secret);
+    if (!scrambledResponse.status) {
+      return { status: false, data: "Scrambling failed" };
+    }
+    return { status: true, data: scrambledResponse.data };
+
+    // Error handling
+  } catch (error) {
+    return { status: false, data: error };
+  }
 };
 
 /******************************************************************
@@ -201,20 +236,33 @@ export const encodeObject = (input: object, secret: string): string => {
  * It descrambles, Base64-decodes, then JSON-parses the payload.
  * @param {string} encoded - Scrambled Base64 string produced by the encoder/scrambler.
  * @param {string} secret - Secret key used to descramble the payload (must match the encoding key).
- * @returns {object} - Decoded value parsed from JSON (shape depends on the original input and may vary).
+ * @returns {SalesParkContract<object>} - Return a SalesPark Contract object
  * History:
  * 28-01-2026: Created
+ * 04-02-2026: Refactored + return SalesPark Contract object
  ******************************************************************/
-export const decodeObject = (encoded: string, secret: string): object => {
-  if (typeof encoded !== "string") {
-    throw new TypeError("Encoded value must be a string");
-  }
-  if (!secret || typeof secret !== "string") {
-    throw new TypeError("Secret must be a non-empty string");
-  }
+export const decodeObject = (
+  encoded: string,
+  secret: string,
+): SalesParkContract<object> => {
+  try {
+    if (typeof encoded !== "string") {
+      return { status: false, data: "Encoded value must be a string" };
+    }
+    if (!secret || typeof secret !== "string") {
+      return { status: false, data: "Secret must be a non-empty string" };
+    }
 
-  const descrambled = descrambleString(encoded, secret);
-  const jsonString = fromBase64(descrambled);
+    const descrambledResponse = descrambleString(encoded, secret);
+    if (!descrambledResponse.status) {
+      return { status: false, data: "Descrambling failed" };
+    }
+    const jsonString = fromBase64(descrambledResponse.data);
 
-  return JSON.parse(jsonString);
+    return { status: true, data: JSON.parse(jsonString) };
+
+    // Error handling
+  } catch (error) {
+    return { status: false, data: error };
+  }
 };
