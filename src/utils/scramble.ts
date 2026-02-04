@@ -107,7 +107,7 @@ const fromBase64 = (value: string): string =>
  * Use only for reversible scrambling, not cryptographic protection.
  * @param {string} value - Plain string to scramble (typically a Base64-encoded JSON payload).
  * @param {string} secret - Secret key used as the repeating XOR mask.
- * @returns {SalesParkContract<object>} - Return a SalesPark Contract object
+ * @returns {SalesParkContract<any>} - Return a SalesPark Contract object
  * History:
  * 28-01-2026: Created
  * 04-02-2026: Refactored + return SalesPark Contract object
@@ -115,7 +115,7 @@ const fromBase64 = (value: string): string =>
 export const scrambleString = (
   value: string,
   secret: string,
-): SalesParkContract<object> => {
+): SalesParkContract<any> => {
   try {
     if (typeof value !== "string") {
       return { status: false, data: "Value must be a string" };
@@ -150,7 +150,7 @@ export const scrambleString = (
  * It Base64-decodes, then XORs again to recover the original string.
  * @param {string} value - Base64-encoded scrambled input produced by the scrambler.
  * @param {string} secret - Secret key used as the repeating XOR mask (must match the encoding key).
- * @returns @returns {SalesParkContract<object>} - Return a SalesPark Contract object
+ * @returns {SalesParkContract<any>} - Return a SalesPark Contract object
  * History:
  * 28-01-2026: Created
  * 04-02-2026: Refactored + return SalesPark Contract object
@@ -158,7 +158,7 @@ export const scrambleString = (
 export const descrambleString = (
   value: string,
   secret: string,
-): SalesParkContract<object> => {
+): SalesParkContract<any> => {
   try {
     if (typeof value !== "string") {
       return { status: false, data: "Value must be a string" };
@@ -195,7 +195,7 @@ export const descrambleString = (
  * @param {object} input - Any JSON-serializable object to encode (arrays are also accepted as objects).
  * @param {string} secret - Secret key used to scramble the Base64 payload (must be a non-empty string).
  * @returns {string} - Scrambled Base64 string representing the encoded object.
- * @returns {SalesParkContract<object>} - Return a SalesPark Contract object
+ * @returns {SalesParkContract<any>} - Return a SalesPark Contract object
  * History:
  * 28-01-2026: Created
  * 04-02-2026: Refactored + return SalesPark Contract object
@@ -203,7 +203,7 @@ export const descrambleString = (
 export const encodeObject = (
   input: object,
   secret: string,
-): SalesParkContract<object> => {
+): SalesParkContract<any> => {
   try {
     if (!input || typeof input !== "object") {
       return { status: false, data: "Input must be an object" };
@@ -236,7 +236,7 @@ export const encodeObject = (
  * It descrambles, Base64-decodes, then JSON-parses the payload.
  * @param {string} encoded - Scrambled Base64 string produced by the encoder/scrambler.
  * @param {string} secret - Secret key used to descramble the payload (must match the encoding key).
- * @returns {SalesParkContract<object>} - Return a SalesPark Contract object
+ * @returns {SalesParkContract<any>} - Return a SalesPark Contract object
  * History:
  * 28-01-2026: Created
  * 04-02-2026: Refactored + return SalesPark Contract object
@@ -244,7 +244,7 @@ export const encodeObject = (
 export const decodeObject = (
   encoded: string,
   secret: string,
-): SalesParkContract<object> => {
+): SalesParkContract<any> => {
   try {
     if (typeof encoded !== "string") {
       return { status: false, data: "Encoded value must be a string" };

@@ -7,7 +7,7 @@ declare global {
     status: boolean;
 
     /** Payload returned by the operation */
-    data: T;
+    data: any;
   };
 }
 
