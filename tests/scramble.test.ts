@@ -1,47 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
-  scrambleString,
-  descrambleString,
   encodeObject,
   decodeObject,
+  encodeString,
+  decodeString,
 } from "../src/utils/scramble";
-
-describe("scrambleString/descrambleString", () => {
-  it("should round-trip a string with the same secret", () => {
-    const secret = "s3cr3t";
-    const input = "Hello, world!";
-
-    const scrambled = scrambleString(input, secret);
-    expect(scrambled.status).toBe(true);
-
-    const output = descrambleString(scrambled.data as string, secret);
-    expect(output.status).toBe(true);
-
-    expect(output.data).toBe(input);
-  });
-
-  it("should produce different outputs for different secrets", () => {
-    const input = "payload";
-    const out1 = scrambleString(input, "secret1");
-    const out2 = scrambleString(input, "secret2");
-
-    expect(out1.status).toBe(true);
-    expect(out2.status).toBe(true);
-    expect(out1.data).not.toBe(out2.data);
-  });
-
-  it("should return status false for invalid inputs", () => {
-    const badValue = scrambleString(123 as any, "secret");
-    const badSecret = scrambleString("value", "");
-    const badDescrambleValue = descrambleString(123 as any, "secret");
-    const badDescrambleSecret = descrambleString("value", "");
-
-    expect(badValue.status).toBe(false);
-    expect(badSecret.status).toBe(false);
-    expect(badDescrambleValue.status).toBe(false);
-    expect(badDescrambleSecret.status).toBe(false);
-  });
-});
 
 describe("encodeObject/decodeObject", () => {
   it("should round-trip an object with the same secret", () => {
@@ -91,5 +54,42 @@ describe("encodeObject/decodeObject", () => {
 
     const decoded = decodeObject(encoded.data as string, "wrong");
     expect(decoded.status).toBe(false);
+  });
+});
+
+describe("encodeString/decodeString", () => {
+  it("should round-trip a string with the same secret", () => {
+    const secret = "key";
+    const input = "Hello, encode!";
+
+    const encoded = encodeString(input, secret);
+    expect(encoded.status).toBe(true);
+
+    const decoded = decodeString(encoded.data as string, secret);
+    expect(decoded.status).toBe(true);
+
+    expect(decoded.data).toBe(input);
+  });
+
+  it("should return status false for invalid inputs", () => {
+    const badInput = encodeString(123 as any, "secret");
+    const badSecret = encodeString("value", "");
+    const badDecodeValue = decodeString(123 as any, "secret");
+    const badDecodeSecret = decodeString("value", "");
+
+    expect(badInput.status).toBe(false);
+    expect(badSecret.status).toBe(false);
+    expect(badDecodeValue.status).toBe(false);
+    expect(badDecodeSecret.status).toBe(false);
+  });
+
+  it("should fail to decode with the wrong secret", () => {
+    const input = "payload";
+    const encoded = encodeString(input, "secret");
+    expect(encoded.status).toBe(true);
+
+    const decoded = decodeString(encoded.data as string, "wrong");
+    expect(decoded.status).toBe(true); // Note: decodeString returns status true even if the secret is wrong, but data will be incorrect
+    expect(decoded.data).not.toBe(input); // The decoded data should not match the original input if the secret is wrong
   });
 });

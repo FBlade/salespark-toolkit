@@ -544,6 +544,22 @@ isNilOrEmpty(undefined);
 // Result: true
 ```
 
+**`isNilEmptyOrEmptyObject(value: unknown): boolean`** — Checks if value is nil, empty string, or an empty plain object (no own keys).
+
+```javascript
+isNilEmptyOrEmptyObject(null);
+// Result: true
+
+isNilEmptyOrEmptyObject("");
+// Result: true
+
+isNilEmptyOrEmptyObject({});
+// Result: true
+
+isNilEmptyOrEmptyObject({ a: 1 });
+// Result: false
+```
+
 **`hasNilOrEmpty(array: unknown): boolean`** — Checks if any element in array is nil or empty.
 
 ```javascript
@@ -836,17 +852,17 @@ assessSecurityRisks([]);
 // Result: { score: 0, level: "safe", recommendations: ["Content appears safe to use"] }
 ```
 
-**`scrambleString(value: string, secret: string): SalesParkContract<object>`** — Scrambles a string using a repeating secret (XOR) and Base64. Reversible obfuscation only (not crypto).
+**`encodeString(input: string, secret: string): SalesParkContract<any>`** — Base64-encodes a string and scrambles it with the provided secret (obfuscation only).
 
 ```javascript
-const scrambled = scrambleString("Hello", "secret");
+const encoded = encodeString("Hello", "secret");
 // Result: { status: true, data: "..." }
 
-const original = descrambleString(scrambled.data, "secret");
+const decoded = decodeString(encoded.data, "secret");
 // Result: { status: true, data: "Hello" }
 ```
 
-**`descrambleString(value: string, secret: string): SalesParkContract<object>`** — Reverses `scrambleString` using the same secret.
+**`decodeString(encoded: string, secret: string): SalesParkContract<any>`** — Reverses `encodeString` using the same secret.
 
 **`encodeObject(input: object, secret: string): SalesParkContract<object>`** — JSON-stringifies an object, Base64-encodes it, and scrambles the result (obfuscation only).
 
@@ -993,5 +1009,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 13_  
-_Last update: 09-01-2026_
+_Document version: 14_  
+_Last update: 06-02-2026_

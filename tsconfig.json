@@ -18,5 +18,5 @@
       "@utils/*": ["src/utils/*"]
     }
   },
-  "include": ["src", "test", "tsup.config.ts"]
+  "include": ["src", "test", "types", "tsup.config.ts"]
 }

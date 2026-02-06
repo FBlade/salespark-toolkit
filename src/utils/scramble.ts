@@ -111,8 +111,9 @@ const fromBase64 = (value: string): string =>
  * History:
  * 28-01-2026: Created
  * 04-02-2026: Refactored + return SalesPark Contract object
+ * 06-02-2026: Removed export function
  ******************************************************************/
-export const scrambleString = (
+const scrambleString = (
   value: string,
   secret: string,
 ): SalesParkContract<any> => {
@@ -154,8 +155,9 @@ export const scrambleString = (
  * History:
  * 28-01-2026: Created
  * 04-02-2026: Refactored + return SalesPark Contract object
+ * 06-02-2026: Removed export function
  ******************************************************************/
-export const descrambleString = (
+const descrambleString = (
   value: string,
   secret: string,
 ): SalesParkContract<any> => {
@@ -228,6 +230,44 @@ export const encodeObject = (
 };
 
 /******************************************************************
+ * ##: Encode string into scrambled Base64 string using a secret key
+ * Base64-encodes an input string and scrambles it using a secret key.
+ * This is intended for lightweight obfuscation, not for cryptographic security.
+ *
+ * TL;DR: Turn a string into a scrambled Base64 payload using a secret key.
+ * @param {string} input - Plain string to encode.
+ * @param {string} secret - Secret key used to scramble the Base64 payload.
+ * @returns {SalesParkContract<any>} - Return a SalesPark Contract object
+ * History:
+ * 06-02-2026: Created
+ ******************************************************************/
+export const encodeString = (
+  input: string,
+  secret: string,
+): SalesParkContract<any> => {
+  try {
+    if (typeof input !== "string") {
+      return { status: false, data: "Input must be a string" };
+    }
+    if (!secret || typeof secret !== "string") {
+      return { status: false, data: "Secret must be a non-empty string" };
+    }
+
+    const base64 = toBase64(input);
+    const scrambledResponse = scrambleString(base64, secret);
+    if (!scrambledResponse.status) {
+      return { status: false, data: "Scrambling failed" };
+    }
+
+    return { status: true, data: scrambledResponse.data };
+
+    // Error handling
+  } catch (error) {
+    return { status: false, data: error };
+  }
+};
+
+/******************************************************************
  * ##: Decode scrambled string back into an object using a secret key
  * Descrambles an encoded string with the provided secret, Base64-decodes it, and parses it as JSON.
  * This reverses the encode flow and returns the original JSON-compatible value if inputs are valid.
@@ -260,6 +300,44 @@ export const decodeObject = (
     const jsonString = fromBase64(descrambledResponse.data);
 
     return { status: true, data: JSON.parse(jsonString) };
+
+    // Error handling
+  } catch (error) {
+    return { status: false, data: error };
+  }
+};
+
+/******************************************************************
+ * ##: Decode scrambled Base64 string back into a string using a secret key
+ * Descrambles the encoded input with the provided secret and Base64-decodes it.
+ * This reverses the encode flow and returns the original string if inputs are valid.
+ *
+ * TL;DR: Convert a scrambled string back into the original string using the same key.
+ * @param {string} encoded - Scrambled Base64 string produced by the encoder/scrambler.
+ * @param {string} secret - Secret key used to descramble the payload.
+ * @returns {SalesParkContract<any>} - Return a SalesPark Contract object
+ * History:
+ * 06-02-2026: Created
+ ******************************************************************/
+export const decodeString = (
+  encoded: string,
+  secret: string,
+): SalesParkContract<any> => {
+  try {
+    if (typeof encoded !== "string") {
+      return { status: false, data: "Encoded value must be a string" };
+    }
+    if (!secret || typeof secret !== "string") {
+      return { status: false, data: "Secret must be a non-empty string" };
+    }
+
+    const descrambledResponse = descrambleString(encoded, secret);
+    if (!descrambledResponse.status) {
+      return { status: false, data: "Descrambling failed" };
+    }
+    const value = fromBase64(descrambledResponse.data);
+
+    return { status: true, data: value };
 
     // Error handling
   } catch (error) {

@@ -5,6 +5,7 @@ import {
   isNil,
   isNilText,
   isNilOrEmpty,
+  isNilEmptyOrEmptyObject,
   hasNilOrEmpty,
   isNilEmptyOrZeroLen,
   isNilOrZeroLen,
@@ -77,6 +78,22 @@ describe("isNilOrEmpty", () => {
     expect(isNilOrEmpty("")).toBe(true);
     expect(isNilOrEmpty("abc")).toBe(false);
     expect(isNilOrEmpty(0)).toBe(false);
+  });
+});
+
+describe("isNilEmptyOrEmptyObject", () => {
+  it("should detect nil, empty string, and empty object", () => {
+    expect(isNilEmptyOrEmptyObject(null)).toBe(true);
+    expect(isNilEmptyOrEmptyObject(undefined)).toBe(true);
+    expect(isNilEmptyOrEmptyObject("")).toBe(true);
+    expect(isNilEmptyOrEmptyObject({})).toBe(true);
+  });
+
+  it("should return false for non-empty values", () => {
+    expect(isNilEmptyOrEmptyObject({ a: 1 })).toBe(false);
+    expect(isNilEmptyOrEmptyObject([])).toBe(false);
+    expect(isNilEmptyOrEmptyObject("abc")).toBe(false);
+    expect(isNilEmptyOrEmptyObject(0)).toBe(false);
   });
 });
 

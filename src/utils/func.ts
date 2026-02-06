@@ -110,6 +110,30 @@ export const isNilOrEmpty = (value: unknown): boolean => {
 };
 
 /******************************************************
+ * ##: Nil, Empty String, or Empty Object Check
+ * Checks if value is nil, an empty string, or an empty plain object (no own keys).
+ * @param {unknown} value - Value to check
+ * History:
+ * 06-02-2026: Created
+ ****************************************************/
+export const isNilEmptyOrEmptyObject = (value: unknown): boolean => {
+  try {
+    if (isNilOrEmpty(value)) return true;
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      !Array.isArray(value) &&
+      Object.keys(value as object).length === 0
+    ) {
+      return true;
+    }
+    return false;
+  } catch {
+    return true;
+  }
+};
+
+/******************************************************
  * ##: Array Nil or Empty Element Check
  * Checks if any element in array is nil or empty (""). Returns true if input is not an array.
  * @param {unknown} array - Array to check
