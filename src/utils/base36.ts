@@ -278,10 +278,20 @@ export const encodeBase36Code = (
       return { status: false, data: params.data };
     }
 
-    const { bitSize, rotateBits, addConstant, mask } = params.data;
+    const {
+      bitSize,
+      rotateBits,
+      addConstant,
+      mask,
+    }: {
+      bitSize: bigint;
+      rotateBits: bigint;
+      addConstant: bigint;
+      mask: bigint;
+    } = params.data;
     const key = secretToKey(config.secret, mask);
 
-    let value = parsed.data & mask;
+    let value: bigint = (parsed.data as bigint) & mask;
     value = value ^ key;
     value = (value + addConstant) & mask;
     value = rotl(value, rotateBits, bitSize, mask);
@@ -343,10 +353,20 @@ export const decodeBase36Code = (
       return { status: false, data: params.data };
     }
 
-    const { bitSize, rotateBits, addConstant, mask } = params.data;
+    const {
+      bitSize,
+      rotateBits,
+      addConstant,
+      mask,
+    }: {
+      bitSize: bigint;
+      rotateBits: bigint;
+      addConstant: bigint;
+      mask: bigint;
+    } = params.data;
     const key = secretToKey(config.secret, mask);
 
-    let value = parsed.data & mask;
+    let value: bigint = (parsed.data as bigint) & mask;
     value = rotr(value, rotateBits, bitSize, mask);
     value = (value - addConstant) & mask;
     value = value ^ key;
