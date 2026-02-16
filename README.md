@@ -32,7 +32,7 @@ npm i @salespark/toolkit
 - **Defer utilities**: post-return microtask scheduling, non-critical timers, after-response hooks.
 - **Boolean utilities**: safe boolean conversion with common representations
 - **Validation utilities**: IBAN validator (ISO 13616), Portuguese tax ID validator
-- **Security utilities**: Markdown XSS protection, content sanitization, risk assessment, obfuscation helpers
+- **Security utilities**: Markdown XSS protection, content sanitization, risk assessment, obfuscation helpers, reversible base36 code encoding/decoding
 - **Environment detection**: `isBrowser`, `isNode` runtime checks
 
 ---
@@ -876,6 +876,50 @@ const decoded = decodeObject(encoded.data, "secret");
 
 **`decodeObject(encoded: string, secret: string): SalesParkContract<object>`** — Reverses `encodeObject` using the same secret.
 
+**`encodeBase36Code(identifier: string, config: EncodeDecodeConfig): SalesParkContract<{ code: string }>`** — Encodes a base36 identifier into a reversible lower-case base36 code using secret-based XOR + rotation.
+
+```typescript
+import { encodeBase36Code, decodeBase36Code } from "@salespark/toolkit";
+
+const config = {
+  secret: "my-super-secret-key",
+  bitSize: 80,
+  rotateBits: 17,
+  addConstant: "0x1fd0a5b7c3",
+};
+
+const encoded = encodeBase36Code("AB12CD34", config);
+// Result: { status: true, data: { code: "..." } }
+
+const decoded = decodeBase36Code(encoded.data.code, config);
+// Result: { status: true, data: { identifier: "AB12CD34" } }
+```
+
+**`decodeBase36Code(code: string, config: EncodeDecodeConfig): SalesParkContract<{ identifier: string }>`** — Decodes a previously encoded base36 code back to the original identifier (upper-case).
+
+```typescript
+const bad = encodeBase36Code("AB-12", {
+  secret: "my-super-secret-key",
+});
+// Result: { status: false, data: { message: "Identifier must be base36 (0-9, A-Z)" } }
+
+const weakSecret = decodeBase36Code("abc123", {
+  secret: "short",
+});
+// Result: { status: false, data: { message: "Missing or weak secret" } }
+```
+
+**`EncodeDecodeConfig`** — Configuration object used by `encodeBase36Code` and `decodeBase36Code`.
+
+```typescript
+type EncodeDecodeConfig = {
+  secret: string; // required, minimum 12 chars
+  bitSize?: number; // default: 80
+  rotateBits?: number; // default: 17
+  addConstant?: string; // default: "0x1fd0a5b7c3"
+};
+```
+
 ### ✅ Validation Utilities
 
 **`isPTTaxId(value: string | number): boolean`** — Validates Portuguese Tax ID (NIF) with MOD-11 algorithm and format checking.
@@ -1009,5 +1053,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 14_  
-_Last update: 06-02-2026_
+_Document version: 15_  
+_Last update: 16-02-2026_

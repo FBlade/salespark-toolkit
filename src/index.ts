@@ -9,6 +9,7 @@ export * from "./utils/iban";
 export * from "./utils/security";
 export * from "./utils/scramble";
 export * from "./utils/defer";
+export * from "./utils/base36";
 
 /** Environment helpers (runtime-agnostic checks) */
 export const isBrowser =
