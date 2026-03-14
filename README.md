@@ -26,7 +26,7 @@ npm i @salespark/toolkit
 
 - **Array utilities**: chunk, uniqBy, deep equality, flatten, groupBy, etc.
 - **Object utilities**: pick, omit, clean objects, deep merge, etc.
-- **String utilities**: slugify, template fill, deburr, sanitize, capitalize words/sentences.
+- **String utilities**: slugify, template fill, deburr, sanitize, capitalize words/sentences, SMS length.
 - **Number utilities**: clamp, round, safe arithmetic/comparisons, safe parse (locale-aware), random digits, etc.
 - **Function utilities**: debounce, throttle, safeJSONParse, formatCurrency, parseName, currency conversions, etc.
 - **Defer utilities**: post-return microtask scheduling, non-critical timers, after-response hooks.
@@ -54,6 +54,7 @@ import {
   isBrowser,
   toBool,
   generatePassword,
+  smsLength,
   uuidv4,
 } from "@salespark/toolkit";
 
@@ -79,6 +80,9 @@ const bool = toBool("yes"); // true
 
 // Generate a password (sync by default)
 const recoveryToken = generatePassword(96, false);
+
+// SMS length and segmentation
+const sms = smsLength("hello");
 
 // Generate UUID v4
 const id = uuidv4();
@@ -359,6 +363,16 @@ sentenceCase("hello world. this is fine!");
 ```javascript
 sanitize("<script>alert('hack')</script>Hello World!", 20);
 // Result: "Hello World!"
+```
+
+**`smsLength(text: string, singleOverrides?, multiOverrides?): SmsLengthResult`** — Calculates SMS encoding, length, and segmentation details (overrides are optional).
+
+```javascript
+const sms = smsLength("hello");
+// Result: { encoding: "GSM_7BIT", length: 5, messages: 1, remaining: 155, ... }
+
+const custom = smsLength("hello", { GSM_7BIT: 10 }, { GSM_7BIT: 5 });
+// Result: characterPerMessage uses overrides
 ```
 
 ### 🔢 Number Utilities
@@ -1093,5 +1107,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 17_  
+_Document version: 18_  
 _Last update: 14-03-2026_
