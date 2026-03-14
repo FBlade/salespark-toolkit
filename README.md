@@ -32,7 +32,7 @@ npm i @salespark/toolkit
 - **Defer utilities**: post-return microtask scheduling, non-critical timers, after-response hooks.
 - **Boolean utilities**: safe boolean conversion with common representations
 - **Validation utilities**: IBAN validator (ISO 13616), Portuguese tax ID validator
-- **Security utilities**: Markdown XSS protection, content sanitization, risk assessment, obfuscation helpers, reversible base36 code encoding/decoding
+- **Security utilities**: Markdown XSS protection, content sanitization, risk assessment, password generation, obfuscation helpers, reversible base36 code encoding/decoding
 - **UUID utilities**: uuidv4 generator (RFC 4122)
 - **Environment detection**: `isBrowser`, `isNode` runtime checks
 
@@ -53,6 +53,7 @@ import {
   clamp,
   isBrowser,
   toBool,
+  generatePassword,
   uuidv4,
 } from "@salespark/toolkit";
 
@@ -75,6 +76,9 @@ const safe = clamp(15, 0, 10); // 10
 
 // Convert to boolean
 const bool = toBool("yes"); // true
+
+// Generate a password (sync by default)
+const recoveryToken = generatePassword(96, false);
 
 // Generate UUID v4
 const id = uuidv4();
@@ -860,6 +864,34 @@ assessSecurityRisks([]);
 // Result: { score: 0, level: "safe", recommendations: ["Content appears safe to use"] }
 ```
 
+**`generatePassword(...)`** — Password generator with sync defaults and async-only options (`words`, `entropy`).
+
+```typescript
+import { generatePassword } from "@salespark/toolkit";
+
+// Sync usage (current default behavior)
+const recoveryToken = generatePassword(96, false);
+
+// Memorable password (override security recommendations if needed)
+const memorable = generatePassword({
+  length: 12,
+  memorable: true,
+  ignoreSecurityRecommendations: true,
+});
+
+// Async options (passphrase / deterministic entropy)
+const passphrase = await generatePassword({
+  words: 4,
+  ignoreSecurityRecommendations: true,
+});
+
+const deterministic = await generatePassword({
+  length: 24,
+  entropy: "seed-123",
+  ignoreSecurityRecommendations: true,
+});
+```
+
 **`encodeString(input: string, secret: string): SalesParkContract<any>`** — Base64-encodes a string and scrambles it with the provided secret (obfuscation only).
 
 ```javascript
@@ -1061,5 +1093,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 16_  
+_Document version: 17_  
 _Last update: 14-03-2026_

@@ -11,6 +11,7 @@ export * from "./utils/scramble";
 export * from "./utils/defer";
 export * from "./utils/base36";
 export * from "./utils/uuid";
+export * from "./utils/password";
 
 /** Environment helpers (runtime-agnostic checks) */
 export const isBrowser =

@@ -3,6 +3,7 @@ node_modules
 *.tsbuildinfo
 coverage
 .github
+.github/agents/
 src/
 tests/
 __tests__/
