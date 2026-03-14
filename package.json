@@ -1,6 +1,6 @@
 {
   "name": "@salespark/toolkit",
-  "version": "2.1.18",
+  "version": "2.1.19",
   "private": false,
   "description": "Collection of utility functions and helpers, designed to speed up development across SalesPark projects. Includes common helpers, reusable patterns, and extended functions.",
   "license": "MIT",
@@ -54,6 +54,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm run test"
+  },
+  "dependencies": {
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",

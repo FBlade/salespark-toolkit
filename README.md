@@ -33,6 +33,7 @@ npm i @salespark/toolkit
 - **Boolean utilities**: safe boolean conversion with common representations
 - **Validation utilities**: IBAN validator (ISO 13616), Portuguese tax ID validator
 - **Security utilities**: Markdown XSS protection, content sanitization, risk assessment, obfuscation helpers, reversible base36 code encoding/decoding
+- **UUID utilities**: uuidv4 generator (RFC 4122)
 - **Environment detection**: `isBrowser`, `isNode` runtime checks
 
 ---
@@ -52,6 +53,7 @@ import {
   clamp,
   isBrowser,
   toBool,
+  uuidv4,
 } from "@salespark/toolkit";
 
 // Debounce a function
@@ -73,6 +75,9 @@ const safe = clamp(15, 0, 10); // 10
 
 // Convert to boolean
 const bool = toBool("yes"); // true
+
+// Generate UUID v4
+const id = uuidv4();
 
 // Check environment
 if (isBrowser) {
@@ -101,6 +106,9 @@ const safe = _.clamp(15, 0, 10); // 10
 
 // Convert to boolean
 const bool = _.toBool("yes"); // true
+
+// Generate UUID v4
+const id = _.uuidv4();
 
 // Check environment
 if (_.isBrowser) {
@@ -1053,5 +1061,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 15_  
-_Last update: 16-02-2026_
+_Document version: 16_  
+_Last update: 14-03-2026_

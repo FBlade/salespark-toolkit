@@ -10,6 +10,7 @@ export * from "./utils/security";
 export * from "./utils/scramble";
 export * from "./utils/defer";
 export * from "./utils/base36";
+export * from "./utils/uuid";
 
 /** Environment helpers (runtime-agnostic checks) */
 export const isBrowser =
