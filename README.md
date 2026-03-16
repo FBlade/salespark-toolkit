@@ -883,8 +883,15 @@ assessSecurityRisks([]);
 ```typescript
 import { generatePassword } from "@salespark/toolkit";
 
-// Sync usage (current default behavior)
+// Sync usage (positional signature skips security recommendations)
 const recoveryToken = generatePassword(96, false);
+
+// Enforce security recommendations by using options
+const strict = generatePassword({
+  length: 12,
+  memorable: true,
+  ignoreSecurityRecommendations: false,
+});
 
 // Memorable password (override security recommendations if needed)
 const memorable = generatePassword({

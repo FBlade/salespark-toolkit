@@ -564,6 +564,7 @@ export function generatePassword(
   if (memorable !== undefined) options.memorable = memorable;
   if (pattern !== undefined) options.pattern = pattern;
   if (prefix !== undefined) options.prefix = prefix;
+  options.ignoreSecurityRecommendations = true;
 
   return generatePasswordSync(options);
 }

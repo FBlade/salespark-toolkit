@@ -18,6 +18,12 @@ describe("generatePassword", () => {
     expect((result as string).length).toBe(12);
   });
 
+  it("should allow short memorable password in positional mode", () => {
+    const weakPassword = generatePassword(6, true);
+    expect(typeof weakPassword).toBe("string");
+    expect(weakPassword.length).toBe(6);
+  });
+
   it("should generate async words password", async () => {
     const result = await generatePassword({ words: 3, ignoreSecurityRecommendations: true });
     expect(typeof result).toBe("string");
