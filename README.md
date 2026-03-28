@@ -28,6 +28,7 @@ npm i @salespark/toolkit
 - **Object utilities**: pick, omit, clean objects, deep merge, etc.
 - **String utilities**: slugify, template fill, deburr, sanitize, capitalize words/sentences, SMS length.
 - **Number utilities**: clamp, round, safe arithmetic/comparisons, safe parse (locale-aware), random digits, etc.
+- **Random utilities**: token generation helpers (non-crypto), random IDs, shuffle helpers
 - **Function utilities**: debounce, throttle, safeJSONParse, formatCurrency, parseName, currency conversions, etc.
 - **Defer utilities**: post-return microtask scheduling, non-critical timers, after-response hooks.
 - **Boolean utilities**: safe boolean conversion with common representations
@@ -481,6 +482,58 @@ formatDecimalNumber("invalid", 2); // "0.00"
 - **`toNumber`** → Use `safeParseFloat` instead
 - **`parseToNumber`** → Use `safeParseFloat` instead
 - **`otp`** → Use `randomDigits` instead
+
+### 🎲 Random Utilities
+
+**`createToken(options?: { withUppercase?: boolean; withLowercase?: boolean; withNumbers?: boolean; withSymbols?: boolean; length?: number; alphabet?: string }): string`** — Generates a random token string using Math.random (non-crypto) and a configurable alphabet.
+
+```javascript
+createToken(); // 64-char token (letters + numbers)
+createToken({ length: 16, withSymbols: true });
+createToken({ alphabet: "ABCDEF0123456789", length: 24 }); // custom alphabet
+```
+
+**`random(): number`** — Returns a random float in the range [0, 1) using Math.random (non-crypto).
+
+```javascript
+random(); // 0.123456...
+```
+
+**`randFromArray<T>(array: T[]): T`** — Picks a random element from an array.
+
+```javascript
+randFromArray(["a", "b", "c"]); // random element
+```
+
+**`randIntFromInterval(min: number, max: number): number`** — Returns a random integer in [min, max).
+
+```javascript
+randIntFromInterval(10, 20); // 10..19
+```
+
+**`shuffleArray<T>(array: T[]): T[]`** — Returns a shuffled copy of the input array.
+
+```javascript
+shuffleArray([1, 2, 3]); // new shuffled array
+```
+
+**`shuffleArrayMutate<T>(array: T[]): T[]`** — Shuffles an array in place (mutates input).
+
+```javascript
+shuffleArrayMutate([1, 2, 3]); // same array instance, shuffled
+```
+
+**`shuffleString(str: string, delimiter?: string): string`** — Shuffles a string by splitting and rejoining.
+
+```javascript
+shuffleString("abc"); // "bca" (random order)
+```
+
+**`generateRandomId(): string`** — Generates a short id with prefix "id-" and a base36 segment.
+
+```javascript
+generateRandomId(); // "id-5gk9x1c2qz" (random)
+```
 
 ### ✅ Boolean Utilities
 

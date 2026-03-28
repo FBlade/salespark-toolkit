@@ -13,6 +13,7 @@ export * from "./utils/base36";
 export * from "./utils/uuid";
 export * from "./utils/password";
 export * from "./utils/sms";
+export * from "./utils/random";
 
 /** Environment helpers (runtime-agnostic checks) */
 export const isBrowser =
