@@ -1,3 +1,5 @@
+> **npm registry notice:** On **2 May 2026** (timezone **Europe/Lisbon**), this package will no longer be **publicly** installable from the npm registry and will become **restricted to the SalesPark npm organization**. Until then, already-published versions remain public. **No further public releases** or support for external consumers is planned — if you depend on this package, **fork** before that date.
+
 # SalesPark Toolkit v2 - Documentation
 
 ## @salespark/toolkit
@@ -1167,5 +1169,5 @@ MIT © [SalesPark](https://salespark.io)
 
 ---
 
-_Document version: 18_  
-_Last update: 14-03-2026_
+_Document version: 19_  
+_Last update: 04-04-2026_

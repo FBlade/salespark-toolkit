@@ -7,3 +7,10 @@ coverage
 .env*
 .DS_Store
 .github/agents/
+
+# Local-only npm notes (not for the remote repo)
+NPM_TRANSITION.md
+INTERNAL_NPM_DISTRIBUTION.md
+
+# Internal docs for the whole @salespark scope — do not push to public remotes
+internal/
